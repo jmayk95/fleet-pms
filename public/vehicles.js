@@ -83,6 +83,7 @@
       </td>
       <td data-label="Vehicle"><div class="vehicle-cell">
         ${getVehicleImage(v.model, v.color)
+${getVehicleImage(v.model, v.color)
   ? `<img src="${getVehicleImage(v.model, v.color)}"
        onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
        class="vehicle-avatar-img" />`
