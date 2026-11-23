@@ -51,77 +51,85 @@
   function SERVICE_SCHEDULE() { return U().SERVICE_SCHEDULE; }
 
   /* ---------- ROW ---------- */
-  function vehicleRow(v) {
-    const complete = isComplete(v);
-    const overdue = isOverdue(v);
-    const days = daysUntil(v.dueDate);
-    const remaining = safeNum(v.threshold) - safeNum(v.odometer);
-    const nextService = SERVICE_SCHEDULE().find(s => s.milestone === v.nextMilestone);
-    const lastServiceInfo = SERVICE_SCHEDULE().find(s => s.milestone === v.lastService);
-    const serviceLog = deps.getServiceLog() || [];
-    const lastServiceEntry = v.lastService
-      ? serviceLog.find(log => log.vehicleId === v.id && log.milestone === v.lastService)
-      : null;
-      
-    const statusClass = v.fleetStatus === 'Retired' ? 'status-retired'
-      : v.fleetStatus === 'Maintenance Hold' ? 'status-hold'
-      : v.fleetStatus === 'In Service - Due PM' ? 'status-due'
-      : 'status-active';
-      
-    const dueSoon = isDueSoon(v);
-    const pmClass = complete ? 'pm-complete' : overdue ? 'pm-overdue' : dueSoon ? 'pm-due' : 'pm-ok';
-    const pmLabel = complete ? 'Complete' : overdue ? 'Overdue' : dueSoon ? 'Due Soon' : 'On Track';
-    const leftText = complete ? 'All complete' : `${formatNumber(remaining)} km`;
-    const leftClass = !complete && remaining < 0 ? 'remaining-cell is-negative' : 'remaining-cell';
-    const dueText = complete ? 'Service complete' : days < 0 ? `${Math.abs(days)} days overdue` : days === 0 ? 'Due today' : `In ${days} days`;
-    const dueClass = overdue ? 'due-over' : '';
-    const isSelected = selectedVehicleIds.has(v.id);
-    
-    return `<tr data-id="${escapeHtml(v.id)}" class="${isSelected ? 'is-selected' : ''}">
-      <td class="row-checkbox" data-label="Select">
-        <input type="checkbox" data-row-select="${escapeHtml(v.id)}" ${isSelected ? 'checked' : ''} aria-label="Select vehicle" />
-      </td>
-      <td data-label="Vehicle"><div class="vehicle-cell">
-        ${getVehicleImage(v.model, v.color)
-${getVehicleImage(v.model, v.color)
-  ? `<img src="${getVehicleImage(v.model, v.color)}"
-       onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
-       class="vehicle-avatar-img" />`
-  : ''}
-        <i class="fa-solid fa-motorcycle" style="display:none; font-size: 20px; color: var(--primary); margin-right: 8px;"></i>
-        <span class="vehicle-primary"><strong>${escapeHtml(v.model)}</strong><span>${escapeHtml(v.color)}</span></span>
-      </div></td>
-      <td data-label="VIN">${escapeHtml(v.vin)}</td>
-      <td class="customer-cell" data-label="Customer">
-        <div class="vehicle-primary">
-          <strong>${escapeHtml(v.customer)}</strong>
-          <span>${escapeHtml(v.depot || '—')}</span>
-        </div>
-      </td>
-      <td data-label="Rider">
-        <div class="vehicle-primary">
-          <strong>${escapeHtml(v.rider || '—')}</strong>
-          <span class="td-vin">${escapeHtml(v.vin || '—')}</span>
-        </div>
-      </td>
-      <td class="odometer-cell" data-label="Odometer">${formatNumber(v.odometer)} km</td>
-      <td data-label="Fleet Status"><span class="status-chip ${statusClass}">${escapeHtml(v.fleetStatus)}</span></td>
-      <td data-label="Last Service">
-        <div class="service-cell">
-          <strong>${v.lastService ? `${escapeHtml(v.lastService)} · ${lastServiceInfo ? lastServiceInfo.months : ''} mo` : 'No service yet'}</strong>
-          <span>${lastServiceEntry ? formatDate(lastServiceEntry.completedAt) : ''}</span>
-        </div>
-      </td>
-      <td data-label="Next Service">
-        <div class="due-cell">
-          <strong>${escapeHtml(v.nextMilestone)}${nextService ? ` · ${nextService.months} mo` : ''}</strong>
-          <span class="${dueClass}">${complete ? 'Service complete' : `${formatDate(v.dueDate)} · ${dueText}`}</span>
-        </div>
-      </td>
-      <td class="${leftClass}" data-label="Km remaining">${leftText}</td>
-      <td data-label="PM"><span class="pm-chip ${pmClass}">${pmLabel}</span></td>
-    </tr>`;
-  }
+
+function vehicleRow(v) {
+  const complete = isComplete(v);
+  const overdue = isOverdue(v);
+  const days = daysUntil(v.dueDate);
+  const remaining = safeNum(v.threshold) - safeNum(v.odometer);
+  const nextService = SERVICE_SCHEDULE().find(s => s.milestone === v.nextMilestone);
+  const lastServiceInfo = SERVICE_SCHEDULE().find(s => s.milestone === v.lastService);
+  const serviceLog = deps.getServiceLog() || [];
+
+  const lastServiceEntry = v.lastService
+    ? serviceLog.find(log => log.vehicleId === v.id && log.milestone === v.lastService)
+    : null;
+
+  const statusClass = v.fleetStatus === 'Retired' ? 'status-retired'
+    : v.fleetStatus === 'Maintenance Hold' ? 'status-hold'
+    : v.fleetStatus === 'In Service - Due PM' ? 'status-due'
+    : 'status-active';
+
+  const dueSoon = isDueSoon(v);
+  const pmClass = complete ? 'pm-complete' : overdue ? 'pm-overdue' : dueSoon ? 'pm-due' : 'pm-ok';
+  const pmLabel = complete ? 'Complete' : overdue ? 'Overdue' : dueSoon ? 'Due Soon' : 'On Track';
+  const leftText = complete ? 'All complete' : `${formatNumber(remaining)} km`;
+  const leftClass = !complete && remaining < 0 ? 'remaining-cell is-negative' : 'remaining-cell';
+  const dueText = complete ? 'Service complete' : days < 0 ? `${Math.abs(days)} days overdue` : days === 0 ? 'Due today' : `In ${days} days`;
+  const dueClass = overdue ? 'due-over' : '';
+  const isSelected = selectedVehicleIds.has(v.id);
+
+  const imageUrl = getVehicleImage(v.model, v.color);
+
+  return `<tr data-id="${escapeHtml(v.id)}" class="${isSelected ? 'is-selected' : ''}">
+    <td class="row-checkbox" data-label="Select">
+      <input type="checkbox" data-row-select="${escapeHtml(v.id)}" ${isSelected ? 'checked' : ''} aria-label="Select vehicle" />
+    </td>
+    <td data-label="Vehicle">
+      <div class="vehicle-cell">
+        ${imageUrl
+          ? `<img src="${escapeHtml(imageUrl)}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" class="vehicle-avatar-img" />`
+          : ''
+        }
+        <i class="fa-solid fa-motorcycle" style="display:${imageUrl ? 'none' : 'block'}; font-size:20px; color:var(--primary); margin-right:8px;"></i>
+        <span class="vehicle-primary">
+          <strong>${escapeHtml(v.model)}</strong>
+          <span>${escapeHtml(v.color)}</span>
+        </span>
+      </div>
+    </td>
+    <td data-label="VIN">${escapeHtml(v.vin)}</td>
+    <td class="customer-cell" data-label="Customer">
+      <div class="vehicle-primary">
+        <strong>${escapeHtml(v.customer)}</strong>
+        <span>${escapeHtml(v.depot || '—')}</span>
+      </div>
+    </td>
+    <td data-label="Rider">
+      <div class="vehicle-primary">
+        <strong>${escapeHtml(v.rider || '—')}</strong>
+        <span class="td-vin">${escapeHtml(v.vin || '—')}</span>
+      </div>
+    </td>
+    <td class="odometer-cell" data-label="Odometer">${formatNumber(v.odometer)} km</td>
+    <td data-label="Fleet Status"><span class="status-chip ${statusClass}">${escapeHtml(v.fleetStatus)}</span></td>
+    <td data-label="Last Service">
+      <div class="service-cell">
+        <strong>${v.lastService ? `${escapeHtml(v.lastService)} · ${lastServiceInfo ? lastServiceInfo.months : ''} mo` : 'No service yet'}</strong>
+        <span>${lastServiceEntry ? formatDate(lastServiceEntry.completedAt) : ''}</span>
+      </div>
+    </td>
+    <td data-label="Next Service">
+      <div class="due-cell">
+        <strong>${escapeHtml(v.nextMilestone)}${nextService ? ` · ${nextService.months} mo` : ''}</strong>
+        <span class="${dueClass}">${complete ? 'Service complete' : `${formatDate(v.dueDate)} · ${dueText}`}</span>
+      </div>
+    </td>
+    <td class="${leftClass}" data-label="Km remaining">${leftText}</td>
+    <td data-label="PM"><span class="pm-chip ${pmClass}">${pmLabel}</span></td>
+  </tr>`;
+}
+
 
   /* ---------- SORT ---------- */
   function applySort(list) {
