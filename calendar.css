@@ -1,0 +1,352 @@
+/* ============ PMS CALENDAR ============ */
+.calendar-section {
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+  overflow: hidden;
+  padding-top: 0; 
+}
+
+.calendar-section:not([hidden]) {
+  display: flex;
+}
+
+.calendar-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--elev-2);
+  padding: 20px;
+  overflow: hidden;
+  height: 100%; 
+}
+
+/* Header (Month title & Nav buttons) */
+.cal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex: 0 0 auto; 
+}
+.cal-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.5px;
+}
+.cal-nav {
+  display: flex;
+  gap: 8px;
+  background: var(--panel-2);
+  padding: 4px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+}
+.cal-nav button {
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-soft);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.cal-nav button:hover {
+  background: var(--panel);
+  color: var(--primary);
+  box-shadow: var(--elev-1);
+}
+.cal-nav button#cal-today {
+  background: var(--primary);
+  color: #fff;
+}
+.cal-nav button#cal-today:hover {
+  background: var(--primary-dark);
+}
+
+/* The Grid */
+.cal-grid-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-bottom: 0;
+  border-radius: var(--r-sm) var(--r-sm) 0 0;
+  overflow: hidden;
+  flex: 0 0 auto;
+}
+.cal-day-name {
+  background: var(--panel-2);
+  padding: 10px 8px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 0 0 var(--r-sm) var(--r-sm);
+  overflow-y: auto;
+  flex: 1; 
+}
+
+/* Individual Day Cell */
+.cal-cell {
+  background: var(--panel);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: background 0.15s;
+}
+.cal-cell:hover {
+  background: var(--panel-2);
+}
+.cal-cell.empty {
+  background: var(--panel-2);
+  opacity: 0.6;
+}
+.cal-cell.today {
+  background: var(--primary-soft);
+  border: 1px solid var(--primary-tint);
+  box-shadow: inset 0 0 0 2px var(--primary-tint);
+}
+
+/* Calendar Events */
+.cal-date {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-soft);
+  align-self: flex-end;
+  margin-bottom: 2px;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+.cal-cell.today .cal-date {
+  background: linear-gradient(135deg, var(--brand-blue), var(--primary));
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(79, 145, 247, 0.4);
+}
+
+.cal-event {
+  font-size: 10px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-left: 3px solid transparent;
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.cal-event:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--elev-1);
+}
+
+/* Event Status Colors */
+.cal-event.status-overdue { background: var(--red-soft); color: var(--red); border-left-color: var(--red); }
+.cal-event.status-due { background: var(--amber-soft); color: #ea580c; border-left-color: #ea580c; }
+.cal-event.status-track { background: var(--secondary-soft); color: var(--secondary-dark); border-left-color: var(--secondary); }
+
+/* Completed Events - Clean and readable */
+.cal-event.status-complete { 
+  background: var(--green-soft); 
+  color: var(--green); 
+  border-left-color: var(--green); 
+  opacity: 1; 
+}
+
+/* ============ CALENDAR LEGEND ============ */
+.cal-legend {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+  margin-right: 16px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-soft);
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.legend-dot.status-overdue { background: var(--red); }
+.legend-dot.status-due { background: #ea580c; }
+.legend-dot.status-track { background: var(--secondary); }
+.legend-dot.status-complete { background: var(--green); }
+
+/* Hide legend on smaller screens to save space */
+@media (max-width: 900px) {
+  .cal-legend {
+    display: none;
+  }
+}
+
+/* ============ MOBILE ADJUSTMENTS ============ */
+@media (max-width: 760px) {
+  .cal-cell {
+    padding: 4px;
+  }
+  .cal-date {
+    font-size: 10px;
+    width: 20px;
+    height: 20px;
+  }
+ .cal-event {
+    font-size: 0; /* Hides the text */
+    padding: 0;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%; /* Makes it a circle */
+    border-left: none;
+    margin: 2px auto; /* Centers the dot */
+  }
+  .cal-event.status-overdue { background: var(--red); }
+  .cal-event.status-due { background: #ea580c; }
+  .cal-event.status-track { background: var(--secondary); }
+  .cal-event.status-complete { background: var(--green); }
+  
+  .cal-event-more {
+    font-size: 8px;
+    padding: 2px;
+  }
+  .cal-grid-header {
+    font-size: 9px; 
+  }
+  .cal-day-name {
+    padding: 6px 2px; 
+  }
+}
+
+/* ============ PRINT STYLES ============ */
+@media print {
+  .sidebar, .page-heading-actions, .table-toolbar, .page-footer,
+  .nav-link, .profile-row, .alerts-control, .heading-icon-group,
+  #notification-button, .live-clock, .page-heading .eyebrow, 
+  #metrics, #overview-charts, #fleet-section, #service-section {
+    display: none !important;
+  }
+
+  body, .app-shell, .main-content, .page-wrap {
+    background: #fff !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .page-heading {
+    display: block !important;
+    margin-bottom: 20px;
+  }
+  #page-title { 
+    font-size: 24px; 
+    margin-bottom: 4px; 
+    display: block !important;
+  }
+  .page-subtitle { display: block !important; }
+
+  .calendar-wrapper {
+    box-shadow: none !important;
+    border: 1px solid #000 !important;
+    padding: 0 !important;
+    background: #fff !important;
+  }
+  .cal-cell {
+    min-height: 80px;
+    border: 1px solid #ccc !important;
+  }
+  .cal-event {
+    box-shadow: none !important;
+    border: 1px solid #ccc !important;
+    background: #f8f8f8 !important;
+    color: #000 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .cal-nav, .cal-legend { display: none !important; }
+  .cal-grid { overflow: visible !important; height: auto !important; }
+}
+
+/* Gentle pulse for today's cell (disabled if user prefers reduced motion) */
+@keyframes today-pulse {
+  0% { box-shadow: inset 0 0 0 2px var(--primary-tint); }
+  50% { box-shadow: inset 0 0 0 2px var(--primary); }
+  100% { box-shadow: inset 0 0 0 2px var(--primary-tint); }
+}
+
+.cal-cell.today {
+  animation: today-pulse 3s ease-in-out infinite;
+}
+
+:root[data-no-anim="true"] .cal-cell.today {
+  animation: none; /* Respect the user's reduce motion preference */
+}
+/* ============ HOLIDAY STYLES ============ */
+
+/* Legend dot for holidays */
+.legend-dot.status-holiday { background: #7e22ce; }
+
+/* Holiday events */
+.cal-event.status-holiday {
+  background: #f3e8ff;
+  color: #7e22ce;
+  border-left-color: #7e22ce;
+  font-style: italic;
+}
+
+/* Highlight the entire day cell if it's a holiday */
+.cal-cell.is-holiday {
+  background: linear-gradient(180deg, #faf5ff 0%, var(--panel) 100%);
+}
+.cal-cell.is-holiday:hover {
+  background: linear-gradient(180deg, #f3e8ff 0%, var(--panel-2) 100%);
+}
+
+/* Today + holiday: keep the today ring but tint purple */
+.cal-cell.is-holiday.today {
+  background: linear-gradient(180deg, #f3e8ff 0%, var(--primary-soft) 100%);
+}
+
+/* Mobile: holidays keep their dot but use the purple color */
+@media (max-width: 760px) {
+  .cal-event.status-holiday { background: #7e22ce; }
+}
+
+/* Print: keep the holiday visible */
+@media print {
+  .cal-event.status-holiday {
+    background: #f3e8ff !important;
+    color: #7e22ce !important;
+    border-left: 3px solid #7e22ce !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

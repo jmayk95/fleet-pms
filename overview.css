@@ -1,0 +1,647 @@
+/* ============================================================
+   FLEETLINE · overview.css
+   Metrics cards, fleet health ring, analytics charts, sparklines.
+   ============================================================ */
+
+/* ---------- METRICS ---------- */
+.metrics {
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: 1.4fr repeat(3, minmax(0, 1fr));
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-3);
+}
+.metric {
+  position: relative;
+  display: flex; flex-direction: column; justify-content: space-between;
+  padding: 14px var(--sp-4) var(--sp-3);
+  min-height: 118px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--panel);
+  box-shadow: var(--elev-1);
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.metric:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--elev-2);
+  border-color: var(--border-strong);
+}
+
+.metric-health-hero {
+  display: flex;
+  flex-direction: row;
+  align-items: center; justify-content: space-between;
+  gap: var(--sp-4);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(240, 248, 255, 0.96));
+  border: 1px solid rgba(79, 145, 247, 0.2);
+  color: var(--text);
+}
+.metric-health-hero:hover {
+  background: linear-gradient(135deg, #fff, #e8f2ff);
+  border-color: rgba(79, 145, 247, 0.35);
+}
+.metric-health-hero::after {
+  content: '';
+  position: absolute; inset: auto 0 0 0;
+  height: 3px;
+  background: var(--stripe);
+  opacity: 0.6;
+  pointer-events: none;
+}
+.health-hero-left { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.health-hero-label {
+  font-size: 11px;
+  font-weight: var(--fw-bold);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.health-hero-value { display: flex; align-items: baseline; gap: var(--sp-1); }
+.health-hero-value strong {
+  font-size: 38px;
+  font-weight: 800;
+  letter-spacing: -1.4px;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+.health-hero-suffix {
+  font-size: 13px;
+  font-weight: var(--fw-semibold);
+  color: var(--muted);
+}
+.health-hero-status {
+  font-size: 12px;
+  font-weight: var(--fw-semibold);
+  color: var(--primary-dark);
+  margin-top: 2px;
+}
+.health-hero-status.is-excellent::before { content: '●'; margin-right: 6px; color: var(--green); }
+.health-hero-status.is-good::before      { content: '●'; margin-right: 6px; color: var(--primary); }
+.health-hero-status.is-fair::before      { content: '●'; margin-right: 6px; color: var(--amber); }
+.health-hero-status.is-low::before       { content: '●'; margin-right: 6px; color: var(--red); }
+.health-hero-ring { position: relative; width: 58px; height: 58px; flex: 0 0 auto; }
+.health-ring-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.health-ring-track { fill: none; stroke: rgba(79, 145, 247, 0.15); stroke-width: 4; }
+.health-ring-bar {
+  fill: none;
+  stroke: var(--primary);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-dasharray: 113;
+  stroke-dashoffset: 113;
+  transition: stroke-dashoffset 1.1s cubic-bezier(0.22, 1, 0.36, 1);
+}
+:root[data-no-anim="true"] .health-ring-bar { transition: none; }
+
+.metric-total    { border-top: 3px solid var(--brand-blue); }
+.metric-overdue  { border-top: 3px solid var(--brand-red); }
+.metric-upcoming { border-top: 3px solid var(--brand-orange); }
+.metric-top {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  color: var(--text-soft);
+  font-size: 13px;
+  font-weight: var(--fw-semibold);
+}
+.metric-icon-wrap {
+  width: 32px; height: 32px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  background: var(--panel-2);
+  margin-top: -4px;
+}
+.metric-icon-wrap svg {
+  width: 16px; height: 16px;
+}
+.metric-body {
+  display: flex; align-items: center; gap: var(--sp-2);
+  margin-top: var(--sp-3);
+}
+.metric-body strong {
+  color: var(--text);
+  font-size: 30px;
+  font-weight: var(--fw-bold);
+  letter-spacing: -0.8px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.metric-foot {
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 11.5px;
+  margin-top: var(--sp-2);
+  color: var(--muted);
+}
+.metric-delta {
+  font-weight: var(--fw-bold);
+  padding: 2px 6px;
+  border-radius: var(--r-sm);
+  font-size: 11px;
+}
+.delta-up { color: var(--green); background: var(--green-soft); }
+.delta-down { color: var(--red); background: var(--red-soft); }
+.delta-flat { color: var(--muted); background: var(--panel-2); }
+.metric-delta-label { color: var(--muted); font-size: 12px; }
+
+/* Density variants for metrics */
+:root[data-density="compact"] .metric {
+  min-height: 98px;
+  padding: 10px var(--sp-3) var(--sp-2);
+}
+:root[data-density="compact"] .metric-body strong { font-size: 24px; }
+:root[data-density="comfortable"] .metric { min-height: 128px; }
+
+/* ============================================================
+   2x2 GRID PANELS (Charts & Lists)
+   ============================================================ */
+.overview-grid {
+  min-height: 0;
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-3);
+  align-items: stretch;
+  overflow: auto;
+}
+
+.overview-panel,
+.chart-panel {
+  min-width: 0;
+  display: flex; flex-direction: column;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--panel);
+  box-shadow: var(--elev-1);
+  position: relative;
+  overflow: hidden;
+  min-height: 280px;
+  max-height: 340px;
+}
+.overview-panel:hover, 
+.chart-panel:hover { 
+  box-shadow: var(--elev-2); 
+}
+
+.overview-panel-head,
+.chart-heading {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--sp-2);
+  margin-bottom: 12px;
+  flex: 0 0 auto;
+}
+
+.section-kicker {
+  color: var(--muted);
+  font-size: 11.5px;
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--tracking-wider);
+}
+.overview-panel-head h2,
+.chart-heading h2 {
+  margin-top: 3px;
+  color: var(--text);
+  font-size: 15px;
+  font-weight: var(--fw-bold);
+}
+.overview-panel-head > svg,
+.chart-heading > svg {
+  width: 17px; height: 17px;
+  color: var(--primary);
+  opacity: 0.7;
+}
+
+/* Chart Canvas */
+.chart-canvas-wrap { position: relative; min-height: 160px; flex: 1; }
+.chart-canvas-wrap canvas { width: 100% !important; height: 100% !important; }
+.chart-center-label {
+  position: absolute;
+  top: calc(50% - 18px);
+  left: 0; right: 0;
+  text-align: center;
+  pointer-events: none;
+  transform: translateY(-50%);
+  display: flex; flex-direction: column;
+}
+.chart-center-value {
+  font-size: 26px;
+  font-weight: var(--fw-bold);
+  color: var(--text);
+  letter-spacing: -0.6px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.chart-center-caption {
+  font-size: 11px;
+  font-weight: var(--fw-semibold);
+  color: var(--muted);
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  margin-top: 3px;
+}
+
+/* ============================================================
+   LISTS (Attention needed & Recent completions)
+   ============================================================ */
+.attention-list,
+.activity-list {
+  flex: 1;
+  overflow-y: auto;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Attention Items */
+/* ============================================================
+   ATTENTION NEEDED LIST
+   ============================================================ */
+
+.attention-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  background: var(--panel-2);
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.attention-row:hover { 
+  border-color: var(--red); 
+  background: var(--red-soft); 
+}
+
+/* Left side: Plate + Milestone + Odo */
+.attention-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+}
+
+.attention-header-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.attention-model {
+  color: var(--text);
+  font-size: 13.5px;
+  font-weight: var(--fw-bold);
+  white-space: nowrap;
+}
+
+.attention-milestone {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: var(--r-pill);
+  background: var(--panel-3);
+  color: var(--text-soft);
+  font-size: 11px;
+  font-weight: var(--fw-bold);
+  white-space: nowrap;
+}
+
+.attention-sub {
+  color: var(--muted);
+  font-size: 11.5px;
+}
+
+/* Right side: Badges */
+.attention-badges {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  flex-shrink: 0;
+}
+
+.attention-badge {
+  padding: 3px 8px;
+  border-radius: var(--r-pill);
+  font-size: 10.5px;
+  font-weight: var(--fw-bold);
+  white-space: nowrap;
+}
+
+.attention-badge.is-red {
+  background: var(--red-soft);
+  color: var(--red);
+}
+/* Activity Items */
+.activity-row {
+  display: grid;
+  grid-template-columns: 12px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  background: var(--panel);
+}
+.activity-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 3px var(--green-soft); }
+.activity-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.activity-main strong { color: var(--text); font-size: 13px; font-weight: var(--fw-bold); }
+.activity-main span { color: var(--muted); font-size: 11.5px; }
+.activity-when { color: var(--muted); font-size: 11.5px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+/* Empty States */
+.attention-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 13px;
+  padding: 24px;
+  text-align: center;
+}
+.attention-empty svg { width: 24px; height: 24px; color: var(--green); margin-bottom: 4px; }
+.chart-empty {
+  display: flex; align-items: center; justify-content: center;
+  height: 100%; color: var(--muted); font-size: 12px; font-style: italic;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 1160px) {
+  .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .metric-health-hero { grid-column: span 2; }
+}
+@media (max-width: 1024px) {
+  .overview-grid {
+    grid-template-columns: 1fr; /* Stack everything vertically */
+  }
+  .overview-panel, .chart-panel {
+    min-height: 240px;
+    max-height: none;
+  }
+}
+@media (max-width: 760px) {
+  .metrics { grid-template-columns: 1fr 1fr; gap: var(--sp-2); }
+  .metric-health-hero { grid-column: span 2; }
+  .health-hero-value strong { font-size: 30px; }
+  
+  .overview-grid { overflow: visible; }
+  .chart-panel { min-height: 250px; }
+}
+@media (max-width: 480px) {
+  .metrics { grid-template-columns: 1fr; }
+  .metric-health-hero { grid-column: auto; }
+}
+/* ============================================================
+   UPDATED RECENT COMPLETIONS (ACTIVITY LIST) STYLING
+   ============================================================ */
+
+/* Make the row use flexbox to align items horizontally */
+.activity-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  background: var(--panel);
+}
+
+/* Left container for text */
+.activity-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  flex: 1; /* Pushes the time to the far right */
+}
+
+/* Row with Plate + Milestone */
+.activity-header-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.activity-model {
+  color: var(--text);
+  font-size: 13.5px;
+  font-weight: var(--fw-bold);
+}
+
+/* Milestone badge */
+.activity-milestone {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: var(--r-pill);
+  background: var(--panel-2);
+  color: var(--text-soft);
+  font-size: 11px;
+  font-weight: var(--fw-bold);
+  white-space: nowrap;
+}
+
+/* Actual Odo text */
+.activity-sub {
+  color: var(--muted);
+  font-size: 11.5px;
+}
+
+/* Time (e.g. 6d ago) */
+.activity-when {
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  margin-left: auto; /* Ensures it stays on the far right */
+}
+/* ============================================================
+   RECENT COMPLETIONS (SINGLE LINE)
+   ============================================================ */
+.activity-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  background: var(--panel);
+}
+
+/* Dot */
+.activity-dot {
+  width: 8px; 
+  height: 8px; 
+  border-radius: 50%; 
+  background: var(--green); 
+  box-shadow: 0 0 0 3px var(--green-soft);
+  flex-shrink: 0;
+}
+
+/* Container for text */
+.activity-main-single {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Plate Number */
+.activity-plate {
+  color: var(--text);
+  font-size: 13px;
+  font-weight: var(--fw-bold);
+  white-space: nowrap;
+}
+
+/* Milestone and Odo */
+.activity-desc {
+  color: var(--muted);
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Time on the right */
+.activity-when {
+  color: var(--muted);
+  font-size: 11.5px;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+/* Customer Name */
+.activity-customer {
+  color: var(--text-soft);
+  font-size: 13px;
+  font-weight: var(--fw-semibold);
+  white-space: nowrap;
+}
+
+/* Add a subtle dot divider between Customer and Plate */
+.activity-customer::after {
+  content: '·';
+  margin-left: 8px;
+  color: var(--muted);
+  font-weight: bold;
+}
+
+/* Make sure the row can handle long customer names */
+.activity-main-single {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+/* ============================================================
+   ATTENTION NEEDED (MATCHING SERVICE LOG LAYOUT)
+   ============================================================ */
+
+.attention-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  background: var(--panel);
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s;
+  width: 100%; /* Ensures it stretches to the full width of the box */
+}
+
+.attention-row:hover { 
+  border-color: var(--red); 
+  background: var(--red-soft); 
+}
+
+/* Red indicator dot */
+.attention-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--red);
+  box-shadow: 0 0 0 3px var(--red-soft);
+  flex-shrink: 0;
+}
+
+.attention-main-single {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.attention-customer {
+  color: var(--text-soft);
+  font-size: 13px;
+  font-weight: var(--fw-semibold);
+  white-space: nowrap;
+}
+
+/* Subtle dot divider */
+.attention-customer::after {
+  content: '·';
+  margin-left: 8px;
+  color: var(--muted);
+  font-weight: bold;
+}
+
+.attention-plate {
+  color: var(--text);
+  font-size: 13.5px;
+  font-weight: var(--fw-bold);
+  white-space: nowrap;
+}
+
+.attention-target {
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+  margin-left: 4px;
+}
+
+/* Badges grouped on the right */
+.attention-badges {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.attention-badge {
+  padding: 3px 8px;
+  border-radius: var(--r-pill);
+  font-size: 10.5px;
+  font-weight: var(--fw-bold);
+  white-space: nowrap;
+}
+
+.attention-badge.is-red {
+  background: var(--red-soft);
+  color: var(--red);
+}

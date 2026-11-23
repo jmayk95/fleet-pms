@@ -1,0 +1,241 @@
+/* ============================================================
+   FLEETLINE · service.css
+   Service schedule table, PMS chips, due/work status chips,
+   inline-edit cell, mobile card layout.
+   ============================================================ */
+
+.service-section {
+  min-height: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.service-section[hidden] { display: none; }
+
+.service-table-scroll {
+  min-height: 0;
+  flex: 1;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: var(--elev-1);
+}
+.service-table {
+  width: 100%;
+  min-width: 1200px;
+  table-layout: auto;
+  border-collapse: collapse;
+  text-align: left;
+}
+.service-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  height: 36px;
+  padding: 0 12px;
+  background: var(--panel-2);
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  text-align: left;
+}
+.service-table td {
+  height: 62px;
+  padding: 7px 12px;
+  font-size: 12.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+}
+.service-table td:nth-child(4) {
+  white-space: normal;
+  word-break: break-word;
+  vertical-align: middle;
+}
+.service-table td:nth-child(2) { padding-left: 14px; }
+.service-table tbody tr { cursor: pointer; }
+.service-table tbody tr:hover { background: var(--panel-2); }
+.service-table .vehicle-primary strong { font-size: 12px; }
+.service-vin { color: var(--muted); font-size: 12px !important; }
+.pms-number { color: var(--primary); font-weight: var(--fw-bold); }
+
+/* Chips */
+.schedule-chip {
+  display: inline-flex; align-items: center;
+  padding: 4px 10px;
+  border-radius: var(--r-pill);
+  font-size: 12px;
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.2px;
+  gap: 6px;
+  border: 1px solid var(--chip-bd, transparent);
+  color: var(--chip-fg, var(--muted));
+  background: var(--chip-bg, #f1f5f9);
+}
+.due-overdue   { --chip-fg: var(--red);     --chip-bg: var(--red-soft);     --chip-bd: #fecaca; }
+.due-due-soon  { --chip-fg: #ea580c;        --chip-bg: var(--amber-soft);   --chip-bd: #fed7aa; }
+.due-upcoming  { --chip-fg: #0284c7;        --chip-bg: #f0f9ff;             --chip-bd: #bae6fd; }
+.due-complete, .due-retired {
+  --chip-fg: var(--muted); --chip-bg: #f1f5f9; --chip-bd: #e2e8f0;
+}
+.work-not-scheduled { --chip-fg: var(--muted); --chip-bg: #f1f5f9; --chip-bd: #e2e8f0; }
+.work-scheduled     { --chip-fg: #0284c7;      --chip-bg: #f0f9ff; --chip-bd: #bae6fd; }
+.work-in-progress   { --chip-fg: #ea580c;      --chip-bg: var(--amber-soft); --chip-bd: #fed7aa; }
+.work-on-hold       { --chip-fg: var(--red);   --chip-bg: var(--red-soft); --chip-bd: #fecaca; }
+
+.service-due-details {
+  display: grid; gap: 2px;
+  margin-top: var(--sp-1);
+  color: var(--muted);
+  font-size: 11.5px;
+  line-height: 1.3;
+}
+.service-table td.schedule-notes-cell {
+  min-width: 320px;
+  max-width: 480px;
+  white-space: normal;
+  overflow-wrap: break-word;
+  vertical-align: middle;
+  line-height: 1.5;
+}
+
+/* Inline edit */
+.inline-edit-cell {
+  cursor: pointer;
+  transition: background 0.15s;
+  border-radius: var(--r-sm);
+}
+.inline-edit-cell:hover { background: var(--primary-soft); }
+.inline-edit-input {
+  width: 100%;
+  padding: 4px 6px;
+  border: 1px solid var(--primary);
+  border-radius: 4px;
+  background: var(--panel);
+  color: var(--text);
+  font-size: 12px;
+  font-family: inherit;
+  outline: none;
+  box-shadow: 0 0 0 3px var(--primary-tint);
+}
+
+/* Mobile card layout */
+@media (max-width: 640px) {
+  .service-table-scroll {
+    border: 0;
+    background: transparent;
+    padding: 0;
+    border-radius: 0;
+  }
+  .service-table thead { display: none; }
+  .service-table,
+  .service-table tbody,
+  .service-table tr,
+  .service-table td {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+  .service-table tbody {
+    display: grid;
+    gap: 12px;
+    padding: 12px;
+  }
+  .service-table tr {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    padding: 14px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 14px;
+    box-shadow: var(--elev-1);
+  }
+  .service-table td {
+    height: auto;
+    padding: 0;
+    border: 0;
+    font-size: 12px;
+    white-space: normal;
+  }
+  .service-table td:first-child {
+    padding-left: 0;
+    grid-column: 1 / -1;
+  }
+  .service-table td::before {
+    content: attr(data-label);
+    display: block;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: var(--fw-bold);
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    margin-bottom: 3px;
+  }
+  .service-table td:first-child::before { display: none; }
+  .service-table td:nth-child(2) { grid-column: 1 / -1; }
+  .service-table td:last-child {
+    grid-column: 1 / -1;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+    margin-top: 4px;
+  }
+}
+.service-table th:first-child,
+.service-table td:first-child {
+  width: 110px;
+  min-width: 110px;
+}
+.service-table th:first-child,
+.service-table td:first-child {
+  width: 110px;
+  min-width: 110px;
+}
+.td-vin {
+  font-family: monospace;
+  font-size: 10.5px;
+  color: var(--muted);
+  letter-spacing: 0;
+  margin-top: 2px;
+}
+/* ============================================================
+   SERVICE TABLE: WIDER COLUMNS WITH WRAPPING
+   ============================================================ */
+
+/* 1. Customer Column */
+#service-section td[data-label="Customer"] {
+  min-width: 180px;
+  max-width: 280px;
+  white-space: normal;
+}
+
+/* 2. Rider / VIN Column */
+#service-section td[data-label="Rider"],
+#service-section td[data-label="Rider / VIN"] {
+  min-width: 200px;
+  max-width: 300px;
+  white-space: normal;
+}
+
+/* 3. Inner text wrapping */
+#service-section td[data-label="Customer"] .vehicle-primary,
+#service-section td[data-label="Rider"] .vehicle-primary,
+#service-section td[data-label="Rider / VIN"] .vehicle-primary {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+#service-section td[data-label="Customer"] .vehicle-primary strong,
+#service-section td[data-label="Customer"] .vehicle-primary span,
+#service-section td[data-label="Rider"] .vehicle-primary strong,
+#service-section td[data-label="Rider / VIN"] .vehicle-primary strong {
+  white-space: normal !important; 
+  word-break: break-word;         
+  line-height: 1.3;
+}

@@ -1,0 +1,364 @@
+/* ============================================================
+   FLEETLINE · vehicles.css
+   Vehicle table cells, avatars, advanced filters, bulk action bar,
+   alert-target highlight, fit-to-screen container queries,
+   mobile card layout.
+   ============================================================ */
+
+
+.fleet-section {
+  min-height: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+/* ---------- CELLS ---------- */
+.vehicle-cell { display: flex; align-items: center; gap: 10px; }
+.vehicle-avatar-img {
+  width: 40px; height: 34px;
+  flex: 0 0 auto;
+  object-fit: contain;
+  margin-right: 6px;
+}
+.vehicle-primary { display: grid; gap: 2px; }
+.vehicle-primary strong {
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: var(--fw-bold);
+  white-space: nowrap;
+}
+.vehicle-primary span {
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.customer-cell { color: var(--text); font-weight: var(--fw-semibold); }
+.customer-cell .vehicle-primary span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: var(--fw-regular);
+}
+.assignment-cell { display: flex; align-items: center; gap: 6px; }
+.assignment-cell strong {
+  color: var(--text);
+  font-size: 12px;
+  font-weight: var(--fw-semibold);
+  white-space: nowrap;
+}
+.assignment-cell span {
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.odometer-cell { color: var(--text); font-weight: var(--fw-semibold); }
+
+.service-cell { display: grid; gap: 2px; }
+.service-cell strong {
+  color: var(--text);
+  font-size: 12px;
+  font-weight: var(--fw-semibold);
+}
+.service-cell span { color: var(--muted); font-size: 12px; }
+.service-cell .complete-text { color: var(--green); }
+.due-cell { display: grid; gap: 2px; }
+.due-cell strong {
+  color: var(--text);
+  font-size: 12px;
+  font-weight: var(--fw-semibold);
+}
+.due-cell span { color: var(--muted); font-size: 12px; }
+.due-cell .due-over { color: var(--red); }
+.remaining-cell {
+  color: var(--text);
+  font-size: 12px;
+  font-weight: var(--fw-semibold);
+}
+.remaining-cell.is-negative { color: var(--red); }
+
+/* Table chrome for the fleet table itself */
+tbody tr:has(.status-retired) .vehicle-primary strong { color: var(--muted); }
+
+/* ---------- ADVANCED FILTERS ---------- */
+.advanced-filter-toggle { position: relative; }
+.advanced-filter-toggle.has-filters {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-soft);
+}
+.advanced-filter-toggle > span {
+  position: absolute;
+  top: -5px; right: -5px;
+  min-width: 15px; height: 15px;
+  display: grid; place-items: center;
+  padding: 0 3px;
+  border: 2px solid var(--panel);
+  border-radius: var(--r-pill);
+  color: #fff;
+  background: var(--primary);
+  font-size: 8px;
+  font-weight: var(--fw-bold);
+}
+.advanced-filter-toggle > span[hidden] { display: none; }
+.advanced-filters {
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(110px, 1fr)) auto;
+  align-items: end; gap: var(--sp-2);
+  padding: var(--sp-3) 14px;
+  border: 1px solid var(--border);
+  border-top: 0;
+  background: var(--panel);
+}
+.advanced-filters[hidden] { display: none; }
+.advanced-filters label {
+  display: grid; gap: var(--sp-1);
+  color: var(--muted);
+  font-size: 11.5px;
+  font-weight: var(--fw-semibold);
+}
+.advanced-filters select {
+  width: 100%; height: 30px;
+  padding: 0 var(--sp-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  background: #fff;
+  font-size: 12px;
+  box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.03);
+}
+.advanced-filters select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-tint);
+  outline: none;
+}
+.clear-advanced-filters {
+  min-height: 30px;
+  padding: 0 10px;
+  font-size: 10px;
+}
+.clear-advanced-filters svg { display: none; }
+
+/* ---------- BULK ACTION BAR ---------- */
+.bulk-action-bar {
+  position: fixed;
+  left: 50%; bottom: 24px;
+  transform: translateX(-50%);
+  z-index: 150;
+  display: flex; align-items: center; gap: 16px;
+  padding: 12px 16px 12px 20px;
+  background: var(--glass-strong, var(--panel));
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--elev-3);
+  max-width: calc(100vw - 32px);
+}
+.bulk-action-bar[hidden] { display: none; }
+.bulk-action-count {
+  font-size: 13px;
+  font-weight: var(--fw-bold);
+  color: var(--text);
+  white-space: nowrap;
+}
+.bulk-action-buttons { display: flex; gap: 6px; }
+
+/* ---------- ALERT TARGET HIGHLIGHT ---------- */
+.alert-target-highlight {
+  position: relative;
+  background: var(--primary-soft) !important;
+  box-shadow: inset 4px 0 0 var(--primary);
+  z-index: 3;
+}
+.alert-target-highlight td { background: var(--primary-soft) !important; }
+.alert-target-highlight td:first-child { background: var(--primary-soft) !important; }
+
+/* ---------- FIT-TO-SCREEN ---------- */
+.fleet-section { container: fleet / inline-size; }
+
+.fleet-section table {
+  min-width: 0;
+  width: 100%;
+  table-layout: auto;
+}
+.fleet-section th,
+.fleet-section td { padding-left: 8px; padding-right: 8px; }
+.fleet-section th {
+  white-space: normal;
+  line-height: 1.25;
+  vertical-align: middle;
+}
+.fleet-section td { height: 58px; }
+
+.fleet-section td:nth-child(5),
+.fleet-section td:nth-child(8),
+.fleet-section td:nth-child(9) {
+  white-space: normal;
+  line-height: 1.35;
+}
+.fleet-section td:nth-child(3) {
+  font-size: 12px;
+  letter-spacing: -0.1px;
+  font-variant-numeric: tabular-nums;
+}
+.fleet-section .status-chip,
+.fleet-section .pm-chip { padding: 3px 9px; }
+.fleet-section .table-scroll { overflow-x: auto; }
+
+@media (min-width: 641px) {
+  @container fleet (max-width: 1500px) {
+    .fleet-section th:nth-child(3), .fleet-section td:nth-child(3) { display: none; }
+  }
+  @container fleet (max-width: 1320px) {
+    .fleet-section th:nth-child(10), .fleet-section td:nth-child(10) { display: none; }
+  }
+  @container fleet (max-width: 1160px) {
+    .fleet-section th:nth-child(4), .fleet-section td:nth-child(4) { display: none; }
+  }
+  @container fleet (max-width: 1000px) {
+    .fleet-section th:nth-child(5), .fleet-section td:nth-child(5) { display: none; }
+  }
+  @container fleet (max-width: 860px) {
+    .fleet-section th:nth-child(11), .fleet-section td:nth-child(11) { display: none; }
+  }
+}
+
+/* ---------- MOBILE LAYOUT (COMPRESSED TABLE) ---------- */
+@media (max-width: 760px) {
+  /* 1. Force table to fit mobile screen */
+  .fleet-section table {
+    min-width: 0 !important; 
+    width: 100%;
+    table-layout: fixed; 
+  }
+
+  /* 2. Hide the requested columns */
+  .fleet-section th:nth-child(1), .fleet-section td:nth-child(1), /* Checkbox */
+  .fleet-section th:nth-child(3), .fleet-section td:nth-child(3), /* VIN */
+  .fleet-section th:nth-child(5), .fleet-section td:nth-child(5), /* Rider */
+  .fleet-section th:nth-child(6), .fleet-section td:nth-child(6), /* Odometer */
+  .fleet-section th:nth-child(7), .fleet-section td:nth-child(7), /* Fleet Status */
+  .fleet-section th:nth-child(8), .fleet-section td:nth-child(8), /* Last Service */
+  .fleet-section th:nth-child(10), .fleet-section td:nth-child(10) /* KM Remaining */ {
+    display: none !important;
+  }
+
+  /* Hide the DATE inside the Next Service column (Column 9) */
+  .fleet-section td:nth-child(9) .due-cell span {
+    display: none !important;
+  }
+
+  /* 3. Compress the remaining columns */
+  .fleet-section th,
+  .fleet-section td {
+    padding: 8px 2px !important; 
+    font-size: 11px !important;
+    height: auto !important;
+    white-space: normal !important; 
+    line-height: 1.3;
+    border-bottom: 1px solid var(--border) !important;
+  }
+
+  .fleet-section th {
+    font-size: 9px !important;
+    padding: 6px 2px !important;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0;
+  }
+
+  /* 4. Optimized Column Widths */
+  .fleet-section th:nth-child(2), .fleet-section td:nth-child(2) { width: 35%; }  /* Vehicle */
+  .fleet-section th:nth-child(4), .fleet-section td:nth-child(4) { width: 22%; }  /* Customer */
+  .fleet-section th:nth-child(9), .fleet-section td:nth-child(9) { width: 28%; }  /* Next Service */
+  .fleet-section th:nth-child(11), .fleet-section td:nth-child(11) { width: 15%; } /* PM Status */
+
+  /* 5. Shrink inner elements */
+  .vehicle-avatar-img {
+    width: 24px;
+    height: 20px;
+    margin-right: 4px;
+  }
+  
+  .vehicle-primary strong { font-size: 11px; }
+  .vehicle-primary span { font-size: 9px; }
+
+  .status-chip, .pm-chip {
+    padding: 2px 4px !important;
+    font-size: 9px !important;
+    white-space: nowrap;
+  }
+
+  /* 6. Toolbar Adjustments */
+  .table-toolbar-actions {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .search-box {
+    flex: 1;
+    min-width: 0;
+    height: 36px;
+  }
+
+  .table-export-button,
+  .advanced-filter-toggle {
+    height: 36px !important;
+    width: 36px !important;
+    padding: 0;
+    justify-content: center;
+  }
+
+  /* Hide the density switch to save space */
+  .density-switch {
+    display: none !important;
+  }
+
+  /* 7. Bulk Bar Adjustment */
+  .bulk-action-bar {
+    left: 12px;
+    right: 12px;
+    transform: none;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .bulk-action-buttons { flex-wrap: wrap; }
+}
+
+/* ============================================================
+   SAFE COLUMN WIDTHS & TEXT WRAPPING (Vehicles Table)
+   ============================================================ */
+
+/* 1. Constrain the Customer Column */
+#fleet-section td[data-label="Customer"] {
+  max-width: 220px;
+  white-space: normal; /* Allow wrapping */
+}
+
+/* 2. Constrain the Rider/VIN Column */
+#fleet-section td[data-label="Rider"],
+#fleet-section td[data-label="Rider / VIN"] {
+  max-width: 240px;
+  white-space: normal; /* Allow wrapping */
+}
+
+/* 3. Ensure inner text wraps and doesn't overflow */
+#fleet-section td[data-label="Customer"] .vehicle-primary,
+#fleet-section td[data-label="Rider"] .vehicle-primary,
+#fleet-section td[data-label="Rider / VIN"] .vehicle-primary {
+  display: block; /* Flexbox can cause overlap; block is safer for wrapping */
+  min-width: 0;
+}
+
+/* 4. Force long unbroken words to break, and ensure text wraps cleanly */
+#fleet-section td[data-label="Customer"] .vehicle-primary strong,
+#fleet-section td[data-label="Customer"] .vehicle-primary span,
+#fleet-section td[data-label="Rider"] .vehicle-primary strong,
+#fleet-section td[data-label="Rider / VIN"] .vehicle-primary strong {
+  white-space: normal !important; /* Override global nowrap */
+  word-break: break-word;
+  line-height: 1.3;
+  display: block;
+}

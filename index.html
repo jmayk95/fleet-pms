@@ -1,0 +1,1548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>Fleetline | Fleet Operations</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+  <link rel="preconnect" href="https://unpkg.com" crossorigin />
+  <link rel="icon" type="image/png" href="e88-logo.png" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+
+  <!-- ============ STYLES ============ -->
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="sidebar.css" />
+  <link rel="stylesheet" href="overview.css" />
+  <link rel="stylesheet" href="vehicles.css" />
+  <link rel="stylesheet" href="service.css" />
+  <link rel="stylesheet" href="calendar.css" />
+
+  <!-- ============ VENDOR SCRIPTS ============ -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.9/dist/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+
+  <!-- ============ PRE-PAINT: apply saved sidebar state before first paint ============ -->
+  <script>
+    try {
+      var _sb = localStorage.getItem('fleetline-sidebar-collapsed-v1');
+      document.documentElement.dataset.sidebar = (_sb === 'true') ? 'collapsed' : 'expanded';
+    } catch (e) {
+      document.documentElement.dataset.sidebar = 'expanded';
+    }
+  </script>
+
+  <!-- ============ APP SCRIPTS ============ -->
+  <script src="fleet-utils.js" defer></script>
+  <script src="sidebar.js"    defer></script>
+  <script src="overview.js"   defer></script>
+  <script src="vehicles.js"   defer></script>
+  <script src="service.js"    defer></script>
+  <script src="calendar.js"   defer></script>
+  <script src="app.js"        defer></script>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- ============ BOOT LOADER ============ -->
+  <div id="boot-loader" class="boot-loader">
+    <div class="boot-loader-inner">
+      <img src="e88-logo.png" alt="E88 Ventures, Inc." class="boot-logo-e88" />
+      <div class="boot-divider"></div>
+      <img src="nrd-logo.png" alt="NRD" class="boot-logo-nrd" />
+      <div class="boot-progress"><span></span></div>
+    </div>
+  </div>
+
+  <!-- ============ LOGIN GATE (Password Auth) ============ -->
+  <div id="login-gate" class="login-gate hidden">
+    <div class="login-split">
+
+      <div class="login-left">
+        <div class="login-left-accent"></div>
+
+        <div class="login-logos">
+          <div class="login-logo-row">
+            <img src="e88-logo.png" alt="E88 Ventures, Inc." class="logo-e88" />
+            <span class="logo-divider"></span>
+            <img src="nrd-logo.png" alt="NRD" class="logo-nrd" />
+          </div>
+          <p class="login-logos-tag">Fleet Operations Portal</p>
+        </div>
+
+        <form class="login-form" id="login-form" autocomplete="on">
+          <h1 class="login-title">Welcome back</h1>
+          <p class="login-subtitle">Sign in to access your fleet dashboard.</p>
+
+          <div class="login-error" id="login-error" role="alert" aria-live="assertive">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span id="login-error-text"></span>
+          </div>
+
+          <div class="login-field">
+            <label for="login-email">Email address</label>
+            <div class="login-input-wrap">
+              <i class="fa-regular fa-envelope"></i>
+              <input type="email" id="login-email" name="email" placeholder="name@nrdev.ph" autocomplete="email" required />
+            </div>
+          </div>
+
+          <div class="login-field">
+            <label for="login-password">Password</label>
+            <div class="login-input-wrap">
+              <i class="fa-solid fa-lock"></i>
+              <input type="password" id="login-password" name="password" placeholder="Enter your password" autocomplete="current-password" required />
+              <button type="button" class="login-eye" id="login-eye"
+                      aria-label="Show password" aria-pressed="false">
+                <i class="fa-regular fa-eye" id="login-eye-icon"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="login-row">
+            <a href="#" class="login-forgot" id="login-forgot">Forgot password?</a>
+          </div>
+
+          <button type="submit" class="login-btn" id="login-submit">
+            <i class="fa-solid fa-arrow-right-to-bracket"></i>
+            <span>Sign in</span>
+          </button>
+
+          <div class="login-hint">
+            <strong>Allowlist only.</strong> Only emails added in <em>Settings → User access</em> by an admin can sign in. Contact your admin if you need access.
+          </div>
+        </form>
+
+        <div class="login-footer">
+          Fleetline v1.0 · <span class="login-footer-brand">E88 Ventures, Inc.</span> × <span class="login-footer-brand">NRD</span>
+        </div>
+      </div>
+
+      <div class="login-right">
+        <div class="login-right-header">
+          <h2 class="login-right-title">
+            Centralized Fleet <span class="blue">Operations</span> &<br />
+            <span class="orange">Service</span> Tracking
+          </h2>
+          <p class="login-right-desc">
+            Your complete fleet management command center. Built for clarity, speed, and complete operational control.
+          </p>
+        </div>
+
+        <div class="login-staggered-grid">
+          <div class="staggered-card align-left">
+            <div class="staggered-icon"><i class="fa-solid fa-calendar-check"></i></div>
+            <div class="staggered-content">
+              <strong>Preventive Maintenance</strong>
+              <span>Automatic PM due-date tracking based on sale date and mileage. Never miss a scheduled service.</span>
+            </div>
+          </div>
+          <div class="staggered-card align-right">
+            <div class="staggered-icon"><i class="fa-solid fa-list-check"></i></div>
+            <div class="staggered-content">
+              <strong>Digital Checklists</strong>
+              <span>Per-task completion tracking with detailed maintenance notes for every single service.</span>
+            </div>
+          </div>
+          <div class="staggered-card align-left">
+            <div class="staggered-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
+            <div class="staggered-content">
+              <strong>Complete History & Audit</strong>
+              <span>Every milestone, repair, and data change is permanently logged and traceable per vehicle.</span>
+            </div>
+          </div>
+          <div class="staggered-card align-right">
+            <div class="staggered-icon"><i class="fa-solid fa-shield-halved"></i></div>
+            <div class="staggered-content">
+              <strong>Role-Based Access</strong>
+              <span>Secure access control and permissions for your designated staff members.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="login-right-footer">
+          <span>Fleetline · Fleet Operations Portal</span>
+          <span>Private · Authorized staff only</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============ APP ============ -->
+  <div class="app-shell" id="app-shell">
+    <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+      <div class="sidebar-top-accent"></div>
+
+      <a class="sidebar-logos" href="#" aria-label="E88 Ventures · NRD">
+        <img src="e88-logo.png" alt="E88 Ventures, Inc." class="sidebar-logo-e88" />
+        <img src="nrd-logo.png" alt="NRD" class="sidebar-logo-nrd" />
+      </a>
+
+      <button class="sidebar-collapse-btn" id="sidebar-collapse" type="button" aria-label="Toggle sidebar">
+        <i data-lucide="chevrons-left"></i>
+      </button>
+
+      <div class="workspace-label">Workspace</div>
+      <nav class="main-nav">
+        <button class="nav-link active" data-view="overview">
+          <span class="nav-icon-wrap"><i data-lucide="layout-dashboard"></i></span>
+          <span class="nav-text">Overview</span>
+        </button>
+        <button class="nav-link" data-view="vehicles">
+          <span class="nav-icon-wrap"><i data-lucide="truck"></i></span>
+          <span class="nav-text">Vehicles</span>
+          <span class="nav-count" id="nav-vehicle-count">0</span>
+        </button>
+        <button class="nav-link" data-view="service">
+          <span class="nav-icon-wrap"><i data-lucide="wrench"></i></span>
+          <span class="nav-text">Service schedule</span>
+          <span class="nav-count" id="nav-service-count" hidden>0</span>
+        </button>
+        <button class="nav-link" data-view="calendar">
+          <span class="nav-icon-wrap"><i data-lucide="calendar"></i></span>
+          <span class="nav-text">Calendar</span>
+          <span class="nav-count" id="nav-calendar-count" hidden>0</span>
+        </button>
+
+        <div class="nav-divider"></div>
+        <div class="workspace-label workspace-label-tight">System</div>
+
+        <button class="nav-link" id="settings-nav" type="button">
+          <span class="nav-icon-wrap"><i data-lucide="settings"></i></span>
+          <span class="nav-text">Settings</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <div class="help-panel">
+          <span class="help-icon"><i data-lucide="life-buoy"></i></span>
+          <div class="help-copy">
+            <strong>Need a hand?</strong>
+            <span>Your fleet, in good hands.</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content" id="main-content" role="main">
+      <div class="page-wrap">
+        <section class="page-heading">
+          <div>
+            <div class="eyebrow"><span class="eyebrow-line"></span><span id="current-date"></span></div>
+            <h1 id="page-title">Fleet overview</h1>
+            <p class="page-subtitle">A clear view of your vehicles and what needs attention.</p>
+          </div>
+          <div class="page-heading-actions">
+
+            <button class="button button-primary" id="add-vehicle" type="button" hidden style="margin-right: 8px;">
+              <i data-lucide="plus"></i> Add vehicle
+            </button>
+
+            <div class="live-clock" id="live-clock" hidden>
+              <i data-lucide="clock"></i>
+              <span class="live-clock-time" id="live-clock-time">--:--:--</span>
+              <span class="live-clock-zone" id="live-clock-zone"></span>
+            </div>
+
+            <div class="alerts-control">
+              <button class="alerts-button" type="button" id="notification-button" aria-controls="alerts-popover" aria-expanded="false">
+                <i data-lucide="bell"></i>
+                <span>Alerts</span>
+                <span class="alert-count" id="notification-count">0</span>
+              </button>
+              <section class="alerts-popover" id="alerts-popover" hidden>
+                <div class="alerts-popover-heading">
+                  <i data-lucide="siren"></i>
+                  <h2>Operational Alerts</h2>
+                </div>
+                <ul class="operational-alert-list" id="operational-alert-list"></ul>
+                <p class="alerts-empty" id="alerts-empty" hidden>No pending backlogs or SLA breaches.</p>
+                <button class="alerts-schedule-link" id="alerts-view-schedule" type="button">
+                  View service schedule <i data-lucide="arrow-up-right"></i>
+                </button>
+              </section>
+            </div>
+
+            <div class="heading-icon-group">
+              <button class="icon-button" type="button" id="activity-jump"
+                      title="Recent activity" aria-label="Recent activity">
+                <i data-lucide="clock-3"></i>
+              </button>
+            </div>
+
+            <div class="header-profile">
+              <div class="header-profile-text">
+                <strong id="user-name">Signed in</strong>
+                <span id="user-email">…</span>
+              </div>
+              <span class="header-avatar" id="user-avatar">–</span>
+              <button class="header-logout-btn" id="logout-btn" type="button" title="Sign out">
+                Sign out
+              </button>
+            </div>
+
+          </div>
+        </section>
+
+        <section class="data-error" id="data-error" hidden>
+          <span class="data-error-icon"><i data-lucide="wifi-off"></i></span>
+          <div class="data-error-copy">
+            <strong>Couldn't load your fleet</strong>
+            <span id="data-error-message">Check your connection and try again.</span>
+          </div>
+          <button class="button button-primary" id="data-error-retry" type="button">
+            <i data-lucide="rotate-cw"></i> Retry
+          </button>
+        </section>
+
+        <!-- ============ OVERVIEW METRICS ============ -->
+        <section class="metrics" id="metrics">
+          <article class="metric metric-health-hero">
+            <div class="health-hero-left">
+              <div class="health-hero-label">Fleet health score</div>
+              <div class="health-hero-value">
+                <strong id="health-score-value">--</strong>
+                <span class="health-hero-suffix">/ 100</span>
+              </div>
+              <div class="health-hero-status" id="health-score-status">Calculating…</div>
+            </div>
+            <div class="health-hero-ring">
+              <svg viewBox="0 0 44 44" class="health-ring-svg">
+                <circle cx="22" cy="22" r="18" class="health-ring-track" />
+                <circle cx="22" cy="22" r="18" class="health-ring-bar" id="health-ring-bar" />
+              </svg>
+            </div>
+          </article>
+
+          <article class="metric metric-total">
+            <div class="metric-top"><span>Total vehicles</span><i data-lucide="truck"></i></div>
+            <div class="metric-body">
+              <strong id="metric-total">0</strong>
+              <span class="metric-note">in fleet</span>
+            </div>
+            <div class="metric-sparkline"><canvas id="spark-total" height="24"></canvas></div>
+            <div class="metric-foot">
+              <span class="metric-delta delta-up" id="delta-total">↑ 0</span>
+              <span class="metric-delta-label">vs last snapshot</span>
+            </div>
+          </article>
+
+          <article class="metric metric-overdue">
+            <div class="metric-top"><span>Overdue</span><i data-lucide="triangle-alert"></i></div>
+            <div class="metric-body">
+              <strong id="metric-overdue">0</strong>
+              <span class="metric-note">vehicles</span>
+            </div>
+            <div class="metric-sparkline"><canvas id="spark-overdue" height="24"></canvas></div>
+            <div class="metric-foot">
+              <span class="metric-delta delta-down" id="delta-overdue">↓ 0</span>
+              <span class="metric-delta-label">vs last snapshot</span>
+            </div>
+          </article>
+
+          <article class="metric metric-upcoming">
+            <div class="metric-top"><span>Due soon</span><i data-lucide="calendar-clock"></i></div>
+            <div class="metric-body">
+              <strong id="metric-upcoming">0</strong>
+              <span class="metric-note">vehicles</span>
+            </div>
+            <div class="metric-sparkline"><canvas id="spark-upcoming" height="24"></canvas></div>
+            <div class="metric-foot">
+              <span class="metric-delta delta-flat" id="delta-upcoming">— 0</span>
+              <span class="metric-delta-label">vs last snapshot</span>
+            </div>
+          </article>
+        </section>
+
+        <!-- ============ OVERVIEW GRID (2x2) ============ -->
+        <section class="overview-grid" id="overview-charts">
+          
+          <!-- Row 2: Attention & Service Status -->
+          <article class="overview-panel attention-panel">
+            <div class="overview-panel-head">
+              <div>
+                <span class="section-kicker">TRIAGE</span>
+                <h2>Attention needed</h2>
+              </div>
+              <i data-lucide="siren"></i>
+            </div>
+            <ul class="attention-list" id="attention-list"></ul>
+          </article>
+
+          <article class="chart-panel">
+            <div class="chart-heading">
+              <div>
+                <span class="section-kicker">MAINTENANCE</span>
+                <h2>Service status</h2>
+              </div>
+              <i data-lucide="chart-pie"></i>
+            </div>
+            <div class="chart-canvas-wrap">
+              <canvas id="service-status-chart"></canvas>
+              <div class="chart-center-label">
+                <span class="chart-center-value" id="pie-center-value">0</span>
+                <span class="chart-center-caption" id="pie-center-caption">vehicles</span>
+              </div>
+            </div>
+          </article>
+
+          <!-- Row 3: Activity & Trend -->
+          <article class="overview-panel activity-panel">
+            <div class="overview-panel-head">
+              <div>
+                <span class="section-kicker">SERVICE LOG</span>
+                <h2>Recent completions</h2>
+              </div>
+              <i data-lucide="history"></i>
+            </div>
+            <ul class="activity-list" id="recent-activity-list"></ul>
+          </article>
+
+          <article class="chart-panel">
+            <div class="chart-heading">
+              <div>
+                <span class="section-kicker">30-DAY TREND</span>
+                <h2>Fleet health over time</h2>
+              </div>
+              <i data-lucide="trending-up"></i>
+            </div>
+            <div class="chart-canvas-wrap"><canvas id="fleet-trend-chart"></canvas></div>
+          </article>
+
+        </section>
+
+        <!-- ============ VEHICLES SECTION ============ -->
+        <section class="fleet-section" id="fleet-section" hidden>
+          <div class="table-toolbar">
+            <div class="filter-tabs">
+              <button class="filter-tab selected" data-filter="all" type="button">
+                All vehicles <span id="filter-all-count">0</span>
+              </button>
+            </div>
+            <div class="table-toolbar-actions">
+              <label class="search-box">
+                <i data-lucide="search"></i>
+                <input id="vehicle-search" type="search" placeholder="Search vehicles..." autocomplete="off" />
+                <kbd>/</kbd>
+              </label>
+              <div class="table-export-actions">
+                <button class="table-export-button" id="export-csv" type="button"><i data-lucide="download"></i><span>CSV</span></button>
+                <button class="table-export-button" id="export-pdf" type="button"><i data-lucide="download"></i><span>PDF</span></button>
+              </div>
+              <div class="density-switch" role="group" aria-label="Row density">
+                <button type="button" data-density="cozy" title="Cozy"><i data-lucide="rows-2"></i></button>
+                <button type="button" data-density="compact" title="Compact"><i data-lucide="rows-3"></i></button>
+              </div>
+              <button class="icon-button advanced-filter-toggle" id="advanced-filter-toggle"
+                      type="button" aria-expanded="false" aria-label="Advanced filters">
+                <i data-lucide="sliders-horizontal"></i>
+                <span id="advanced-filter-count" hidden>0</span>
+              </button>
+            </div>
+          </div>
+          <div class="advanced-filters" id="advanced-filters" hidden>
+            <label>Model<select data-advanced-filter="model"><option value="">All models</option></select></label>
+            <label>Customer<select data-advanced-filter="customer"><option value="">All customers</option></select></label>
+            <label>Depot<select data-advanced-filter="depot"><option value="">All depots</option></select></label>
+            <label>Fleet status<select data-advanced-filter="fleetStatus"><option value="">All fleet statuses</option></select></label>
+            <label>PM status<select data-advanced-filter="pmStatus"><option value="">All PM statuses</option></select></label>
+            <button class="button button-secondary clear-advanced-filters" id="clear-advanced-filters" type="button">Clear filters</button>
+          </div>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th class="th-checkbox">
+                    <input type="checkbox" id="vehicle-select-all" aria-label="Select all vehicles" />
+                  </th>
+                  <th class="th-vehicle">VEHICLE</th>
+                  <th>VIN</th>
+                  <th>CUSTOMER</th>
+                  <th>RIDER / VIN</th>
+                  <th>ODOMETER</th>
+                  <th>FLEET STATUS</th>
+                  <th>LAST SERVICE</th>
+                  <th>NEXT SERVICE</th>
+                  <th>KM REMAINING</th>
+                  <th>PM STATUS</th>
+                </tr>
+              </thead>
+              <tbody id="vehicle-rows"></tbody>
+            </table>
+            <div class="empty-state" id="empty-state" hidden>
+              <span class="empty-icon"><i data-lucide="search-x"></i></span>
+              <strong>No vehicles found</strong>
+              <span>Try another search or change the selected filter.</span>
+            </div>
+          </div>
+          <div class="table-footer">
+            <span id="table-summary">Showing 0 vehicles</span>
+            <span><i data-lucide="mouse-pointer-2"></i> Click a row to open the vehicle profile</span>
+          </div>
+        </section>
+
+        <div class="bulk-action-bar" id="bulk-action-bar" hidden>
+          <span class="bulk-action-count" id="bulk-action-count">0 selected</span>
+          <div class="bulk-action-buttons">
+            <button class="button button-secondary" type="button" id="bulk-change-status">
+              <i data-lucide="activity"></i> Fleet status
+            </button>
+            <button class="button button-secondary" type="button" id="bulk-change-customer">
+              <i data-lucide="users"></i> Fleet customer
+            </button>
+            <button class="button button-danger" type="button" id="bulk-delete">
+              <i data-lucide="trash-2"></i> Delete
+            </button>
+            <button class="button button-secondary" type="button" id="bulk-clear">
+              <i data-lucide="x"></i> Clear
+            </button>
+          </div>
+        </div>
+
+        <!-- ============ SERVICE SECTION ============ -->
+        <section class="service-section" id="service-section" hidden>
+
+          <div class="table-toolbar">
+            <div class="filter-tabs service-filter-tabs" id="service-tabs" role="tablist"></div>
+            <div class="table-toolbar-actions">
+              <label class="search-box">
+                <i data-lucide="search"></i>
+                <input id="service-search" type="search" placeholder="Search service queue..." autocomplete="off" />
+                <kbd>/</kbd>
+              </label>
+              <div class="table-export-actions">
+                <button class="table-export-button" id="export-service-csv" type="button"><i data-lucide="download"></i><span>CSV</span></button>
+                <button class="table-export-button" id="export-service-pdf" type="button"><i data-lucide="download"></i><span>PDF</span></button>
+              </div>
+              <div class="density-switch" role="group" aria-label="Row density">
+                <button type="button" data-density="cozy" title="Cozy"><i data-lucide="rows-2"></i></button>
+                <button type="button" data-density="compact" title="Compact"><i data-lucide="rows-3"></i></button>
+              </div>
+            </div>
+          </div>
+
+          <div class="service-table-scroll">
+            <table class="service-table">
+              <thead>
+                <tr>
+                  <th>PMS Number</th><th>Vehicle</th><th>Customer</th>
+                  <th>Rider / VIN</th><th>Odometer</th><th>Current Service</th>
+                  <th>Due Status</th><th>Work Status</th><th>Scheduled Date</th>
+                  <th>Actual Odo</th><th>Notes</th>
+                </tr>
+              </thead>
+              <tbody id="service-rows"></tbody>
+            </table>
+            <div class="access-empty" id="service-empty" hidden>No service records found.</div>
+          </div>
+          <div class="table-footer">
+            <span id="service-summary">0 records</span>
+            <span><i data-lucide="mouse-pointer-2"></i> Select a row to update its work details</span>
+          </div>
+        </section>
+
+        <!-- ============ CALENDAR SECTION ============ -->
+        <section class="calendar-section" id="calendar-section" hidden>
+          <div class="table-toolbar">
+            <div class="filter-tabs">
+              <button class="filter-tab selected" type="button">PMS Calendar</button>
+            </div>
+          </div>
+          <div class="calendar-wrapper" id="calendar-container">
+            <!-- Injected by calendar.js -->
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- ============ VEHICLE DRAWER ============ -->
+  <aside class="vehicle-drawer" id="vehicle-drawer" hidden aria-labelledby="vehicle-drawer-title">
+    <header class="vehicle-drawer-header">
+      <div class="vehicle-drawer-title-wrap">
+        <span class="vehicle-drawer-kicker">VEHICLE PROFILE</span>
+        <h2 id="vehicle-drawer-title">—</h2>
+      </div>
+      <button class="icon-button" id="vehicle-drawer-close" type="button" aria-label="Close">
+        <i data-lucide="x"></i>
+      </button>
+    </header>
+    <div class="vehicle-drawer-body" id="vehicle-drawer-body"></div>
+    <footer class="vehicle-drawer-footer"></footer>
+  </aside>
+  <div class="vehicle-drawer-backdrop" id="vehicle-drawer-backdrop" hidden></div>
+
+  <!-- ============ SERVICE HISTORY DRAWER ============ -->
+  <aside class="service-history-drawer" id="service-history-drawer" hidden aria-labelledby="service-history-title">
+    <header class="service-history-header">
+      <div class="service-history-title-wrap">
+        <span class="service-history-kicker">SERVICE HISTORY</span>
+        <h2 id="service-history-title">—</h2>
+        <span class="service-history-subtitle" id="service-history-subtitle">—</span>
+      </div>
+      <button class="icon-button" id="service-history-close" type="button" aria-label="Close">
+        <i data-lucide="x"></i>
+      </button>
+    </header>
+    <div class="service-history-body" id="service-history-body"></div>
+  </aside>
+  <div class="service-history-backdrop" id="service-history-backdrop" hidden></div>
+
+  <!-- ============ VEHICLE DIALOG ============ -->
+  <dialog id="vehicle-dialog" class="dialog">
+    <form id="vehicle-form" method="dialog" novalidate>
+      <div class="dialog-heading">
+        <div>
+          <span class="section-kicker">VEHICLE RECORD</span>
+          <h2 id="dialog-title">Add vehicle</h2>
+        </div>
+        
+        <button class="icon-button dialog-close" type="button" aria-label="Close"><i data-lucide="x"></i></button>
+      </div>
+
+      <input type="hidden" name="id" />
+
+      <div class="dialog-groups">
+
+        <div class="form-group">
+          <h3 class="form-group-title"><i data-lucide="info"></i> Identity</h3>
+          <div class="form-grid">
+            <label><span class="label-text"><span class="req">*</span>Model</span>
+              <select name="model" required>
+                <option value=""></option>
+                <option value="D400">D400</option>
+                <option value="R280">R280</option>
+                <option value="R280 Sport">R280 Sport</option>
+              </select>
+            </label>
+            <label><span class="label-text"><span class="req">*</span>Color</span>
+              <select name="color" required>
+                <option value=""></option>
+                <option value="Black">Black</option>
+                <option value="Blue">Blue</option>
+                <option value="Red">Red</option>
+                <option value="White">White</option>
+              </select>
+            </label>
+            <label class="col-span-2">
+              <span class="label-text"><span class="req">*</span>VIN</span>
+              <input name="vin" required maxlength="17" autocomplete="off" spellcheck="false" data-uppercase />
+            </label>
+            <label>
+              <span class="label-text">Plate number</span>
+              <input name="plate" maxlength="6" autocomplete="off" spellcheck="false" data-uppercase />
+            </label>
+            <label><span class="label-text"><span class="req">*</span>Date of sale</span><input name="saleDate" type="date" required /></label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <h3 class="form-group-title"><i data-lucide="users"></i> Assignment</h3>
+          <div class="form-grid">
+            <label><span class="label-text"><span class="req">*</span>Fleet customer</span><input name="customer" required /></label>
+            <label><span class="label-text">Assigned rider</span><input name="rider" /></label>
+            <label class="col-span-2"><span class="label-text">Depot</span><input name="depot" /></label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <h3 class="form-group-title"><i data-lucide="wrench"></i> Maintenance</h3>
+          <div class="form-grid">
+            <label><span class="label-text"><span class="req">*</span>Odometer (km)</span><input name="odometer" type="number" min="0" step="1" required /></label>
+            <label><span class="label-text"><span class="req">*</span>Fleet status</span>
+              <select name="fleetStatus" required>
+                <option>Active In-Service</option>
+                <option>In Service - Due PM</option>
+                <option>Maintenance Hold</option>
+                <option>Retired</option>
+              </select>
+            </label>
+            <label><span class="label-text">Last service completed</span>
+              <select name="lastService">
+                <option value="">No service yet</option>
+                <option>1st Service</option><option>2nd Service</option>
+                <option>3rd Service</option><option>4th Service</option>
+                <option>5th Service</option><option>6th Service</option>
+                <option>7th Service</option><option>8th Service</option>
+                <option>9th Service</option><option>10th Service</option>
+                <option>11th Service</option><option>12th Service</option>
+              </select>
+            </label>
+            <label><span class="label-text">Next milestone</span><input name="nextMilestone" readonly /></label>
+            <label><span class="label-text">Service threshold (km)</span><input name="threshold" type="number" readonly /></label>
+            <label><span class="label-text">Next service due</span><input name="dueDate" type="date" readonly /></label>
+            <p class="form-note col-span-2">
+              <strong>Service plan</strong>
+              1st: 1 mo / 1,000 km · 2nd: 3 mo / 5,000 km · 3rd: 6 mo / 10,000 km · 4th: 12 mo / 15,000 km · 5th: 18 mo / 20,000 km · 6th: 24 mo / 25,000 km · 7th: 30 mo / 30,000 km · 8th: 36 mo / 35,000 km · 9th: 42 mo / 40,000 km · 10th: 48 mo / 45,000 km · 11th: 54 mo / 50,000 km · 12th: 60 mo / 55,000 km
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="dialog-actions">
+        <button class="button button-secondary" type="button" id="cancel-dialog">Cancel</button>
+        <button class="button button-primary" type="submit"><i data-lucide="check"></i> Save vehicle</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- ============ SERVICE DIALOG ============ -->
+  <dialog id="service-dialog" class="dialog">
+    <form id="service-form" novalidate>
+      <div class="dialog-heading">
+        <div>
+          <span class="section-kicker">PLANNED MAINTENANCE</span>
+          <h2 id="service-dialog-title">Update service record</h2>
+        </div>
+        <button class="icon-button service-close" type="button" aria-label="Close"><i data-lucide="x"></i></button>
+      </div>
+      <input type="hidden" name="vehicleId" />
+
+      <div class="dialog-groups">
+
+        <div class="form-group">
+          <h3 class="form-group-title"><i data-lucide="file-text"></i> Record</h3>
+        <div class="schedule-fields">
+          <label>PMS Number<input name="pmsNumber" readonly /></label>
+          <label>VIN<input name="vin" readonly /></label>
+          <label>Current Service<input name="currentService" readonly /></label>
+          <label>Due Status<input name="dueStatus" readonly /></label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <h3 class="form-group-title"><i data-lucide="calendar-clock"></i> Work status</h3>
+        
+        <div class="work-status-grid">
+          <!-- Row 1: Work Status (2 columns) & Scheduled Date (2 columns) -->
+          <label class="grid-span-2">Work Status<select name="workStatus">
+            <option>Not Scheduled</option><option>Scheduled</option>
+            <option>In Progress</option><option>On Hold</option>
+          </select></label>
+          
+          <label class="grid-span-2">Scheduled Date<input name="scheduledDate" type="date" /></label>
+          
+          <!-- Row 2: Mechanic (2 columns), Current Odo (1 column), Actual Odo (1 column) -->
+          <label class="grid-span-2">Mechanic<select name="mechanic">
+            <option value="">— Select Mechanic —</option>
+            <option value="Christopher Mendoza">Christopher Mendoza</option>
+            <option value="Lohen Eslava">Lohen Eslava</option>
+          </select></label>
+
+          <label>Prev Odo<input name="currentOdo" readonly /></label>
+          
+          <label>Actual Odo<input name="actualOdo" type="number" min="0" step="1" placeholder="Enter" /></label>
+
+          <!-- Row 3: Notes (full width) -->
+          <label class="grid-span-4">Additional notes<textarea name="notes" rows="3" placeholder="Additional notes (e.g. replaced parts)"></textarea></label>
+        </div>
+      </div>
+      </div>
+
+      <div class="dialog-actions">
+        <span class="dialog-actions-hint" id="service-complete-hint" hidden></span>
+        
+        <button class="button button-secondary" type="button" id="service-checklist-toggle">
+          <i data-lucide="clipboard-list"></i>
+          <span id="service-checklist-toggle-label">Checklist</span>
+        </button>
+        
+        <button class="button button-primary" type="button" id="service-start-btn">
+          <i data-lucide="play"></i> Start Service
+        </button>
+
+        <button class="button button-success service-complete-btn" type="button" id="service-complete" disabled title="Set work status to 'In Progress' before completing">
+          <i data-lucide="check-circle-2"></i> Mark as completed
+        </button>
+        
+        <button class="button button-primary" type="submit" id="service-save-btn">
+          <i data-lucide="check"></i> Save
+        </button>
+
+        <button class="button button-secondary" type="button" id="service-print-btn">
+          <i data-lucide="printer"></i> Job Order
+        </button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- ============ CHECKLIST DIALOG ============ -->
+  <dialog id="checklist-dialog" class="dialog dialog-checklist"
+          aria-labelledby="checklist-dialog-title"
+          aria-describedby="checklist-dialog-subtitle">
+    <div class="dialog-heading">
+      <div style="flex: 1;">
+        <span class="section-kicker">MAINTENANCE TASKS</span>
+        <h2 id="checklist-dialog-title">Checklist</h2>
+        <p class="checklist-dialog-subtitle" id="checklist-dialog-subtitle">—</p>
+        <div class="checklist-progress-wrap">
+          <div class="checklist-progress-bar-bg">
+            <div class="checklist-progress-bar-fill" id="checklist-dialog-progress-bar"></div>
+          </div>
+          <span class="checklist-progress-text" id="checklist-dialog-progress-text">0%</span>
+        </div>
+      </div>
+      <button class="icon-button checklist-close" type="button" aria-label="Close"><i data-lucide="x"></i></button>
+    </div>
+
+    <div class="checklist-dialog-body">
+      <ul class="checklist-tasks" id="checklist-dialog-tasks"></ul>
+    </div>
+
+    <p class="checklist-legend">
+      <strong>Legend:</strong>
+      I = Inspect · C = Clean · R = Replace · A = Adjust ·
+      L = Lubricate · T = Tighten · CC = Check charge &amp; connections
+    </p>
+
+    <div class="dialog-actions checklist-dialog-actions">
+      <div class="checklist-bulk-actions">
+        <button class="checklist-bulk-btn" type="button" id="checklist-dialog-check-all" title="Mark all tasks as done">
+          <i data-lucide="check-check"></i>
+          <span>Check all</span>
+        </button>
+        <button class="checklist-bulk-btn" type="button" id="checklist-dialog-uncheck-all" title="Clear all checked tasks">
+          <i data-lucide="undo-2"></i>
+          <span>Uncheck all</span>
+        </button>
+      </div>
+      <button class="button button-secondary" type="button" id="checklist-dialog-close">
+        <i data-lucide="x"></i> Close
+      </button>
+    </div>
+  </dialog>
+
+  <!-- ============ SETTINGS DIALOG ============ -->
+  <dialog id="settings-dialog" class="dialog dialog-settings"
+          aria-labelledby="settings-dialog-title">
+    <div class="dialog-heading dialog-settings-heading">
+      <div>
+        <span class="section-kicker">TEAM SETTINGS</span>
+        <h2 id="settings-dialog-title">Settings</h2>
+      </div>
+      <button class="icon-button settings-close" type="button" aria-label="Close"><i data-lucide="x"></i></button>
+    </div>
+
+    <div class="settings-layout">
+      <nav class="settings-tabs" id="settings-tabs">
+        <button class="settings-tab active" data-tab="dashboard" type="button">
+          <span class="tab-icon"><i data-lucide="layout-dashboard"></i></span>
+          <span>Dashboard</span>
+        </button>
+        <button class="settings-tab" data-tab="access" type="button">
+          <span class="tab-icon"><i data-lucide="users-round"></i></span>
+          <span>User access</span>
+        </button>
+        <button class="settings-tab" data-tab="profile" type="button">
+          <span class="tab-icon"><i data-lucide="user-round"></i></span>
+          <span>Your profile</span>
+        </button>
+        <button class="settings-tab" data-tab="trash" type="button">
+          <span class="tab-icon"><i data-lucide="trash-2"></i></span>
+          <span>Trash</span>
+        </button>
+        <button class="settings-tab" data-tab="audit" type="button">
+          <span class="tab-icon"><i data-lucide="scroll-text"></i></span>
+          <span>Audit log</span>
+        </button>
+        <button class="settings-tab" data-tab="about" type="button">
+          <span class="tab-icon"><i data-lucide="info"></i></span>
+          <span>About</span>
+        </button>
+      </nav>
+
+      <div class="settings-panels">
+
+        <section class="settings-panel active" data-panel="dashboard">
+          <div class="settings-panel-head">
+            <h3>Dashboard controls</h3>
+            <p>Adjust how the dashboard appears and what it shows.</p>
+          </div>
+          <div class="admin-lock-banner" id="dashboard-lock-banner" hidden>
+            <i data-lucide="lock"></i>
+            <span>Only admins can change these settings.</span>
+          </div>
+
+          <div class="settings-fieldset" id="dashboard-settings-fieldset">
+            <div class="settings-grid">
+              <div class="settings-field">
+                <label for="set-density">Layout density</label>
+                <select id="set-density">
+                  <option value="comfortable">Comfortable</option>
+                  <option value="cozy" selected>Cozy (default)</option>
+                  <option value="compact">Compact</option>
+                </select>
+              </div>
+              <div class="settings-field">
+                <label for="set-date-format">Date display</label>
+                <select id="set-date-format">
+                  <option value="long" selected>Long (Mon, Oct 7, 2026)</option>
+                  <option value="short">Short (Oct 7, 2026)</option>
+                  <option value="numeric">Numeric (2026-10-07)</option>
+                </select>
+              </div>
+              <div class="settings-field">
+                <label for="set-default-view">Default view on sign-in</label>
+                <select id="set-default-view">
+                  <option value="overview" selected>Overview</option>
+                  <option value="vehicles">Vehicles</option>
+                  <option value="service">Service schedule</option>
+                </select>
+              </div>
+              <div class="settings-field col-span-2">
+                <label for="set-clock-format">Clock format</label>
+                <select id="set-clock-format">
+                  <option value="12h" selected>12-hour (2:34:56 PM)</option>
+                  <option value="24h">24-hour (14:34:56)</option>
+                  <option value="hidden">Hidden</option>
+                </select>
+              </div>
+              <div class="settings-field col-span-2">
+                <label for="set-service-logic">Service due logic</label>
+                <select id="set-service-logic">
+                  <option value="both" selected>Both (Whichever comes first)</option>
+                  <option value="days">Days only (Time-based)</option>
+                  <option value="km">Kilometers only (Distance-based)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="settings-toggles">
+              <div class="settings-row">
+                <div class="settings-row-label">
+                  <strong>Show alert banner</strong>
+                  <span>Display the alerts button in the top-right toolbar.</span>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" id="set-show-alerts" checked />
+                  <span class="switch-slider"></span>
+                </label>
+              </div>
+              <div class="settings-row">
+                <div class="settings-row-label">
+                  <strong>Show "Need a hand?" panel</strong>
+                  <span>Help card in the sidebar.</span>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" id="set-show-help" checked />
+                  <span class="switch-slider"></span>
+                </label>
+              </div>
+              <div class="settings-row">
+                <div class="settings-row-label">
+                  <strong>Compact page heading</strong>
+                  <span>Hide the date eyebrow above the page title.</span>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" id="set-compact-heading" />
+                  <span class="switch-slider"></span>
+                </label>
+              </div>
+              <div class="settings-row">
+                <div class="settings-row-label">
+                  <strong>Reduce motion</strong>
+                  <span>Disable animated transitions and progress bars.</span>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" id="set-reduce-motion" />
+                  <span class="switch-slider"></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="settings-actions">
+              <button class="button button-secondary" type="button" id="set-reset">
+                <i data-lucide="rotate-ccw"></i> Reset to defaults
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section class="settings-panel" data-panel="access">
+          <div class="settings-panel-head">
+            <h3>User access</h3>
+            <p>Add team members and manage their passwords and roles.</p>
+          </div>
+          <div class="admin-lock-banner" id="access-lock-banner" hidden>
+            <i data-lucide="lock"></i>
+            <span>Only admins can manage user access.</span>
+          </div>
+
+          <div class="access-notice">
+            <i data-lucide="info"></i>
+            <span><strong>Password sharing:</strong> new accounts receive a temporary password. Share it with the user through a secure channel, and ask them to change it on first sign-in.</span>
+          </div>
+
+          <form id="access-form" class="access-form" autocomplete="off">
+            <div class="access-form-row">
+              <label>Email address<input name="email" type="email" required placeholder="name@company.com" /></label>
+              <label>Temporary password<input name="password" type="text" required placeholder="Min 6 chars" minlength="6" /></label>
+              <label>Confirm password<input name="passwordConfirm" type="text" required placeholder="Repeat password" minlength="6" /></label>
+              <label>Role<select name="role" required>
+                <option>Fleet manager</option>
+                <option>Service coordinator</option>
+                <option>Viewer</option>
+                <option>Admin</option>
+              </select></label>
+              <button class="button button-primary" type="submit"><i data-lucide="user-round-plus"></i> Add</button>
+            </div>
+            <p class="access-message" id="access-message" role="status"></p>
+          </form>
+
+          <div class="access-list-heading">
+            <h3>Access list</h3>
+            <span id="access-list-count">0 accounts</span>
+          </div>
+          <div class="access-table-wrap">
+            <table class="access-table">
+              <thead>
+                <tr><th>Email</th><th>Role</th><th>Added</th><th><span class="sr-only">Actions</span></th></tr>
+              </thead>
+              <tbody id="access-rows"></tbody>
+            </table>
+            <div class="access-empty" id="access-empty">No email accounts added yet.</div>
+          </div>
+        </section>
+
+        <section class="settings-panel" data-panel="profile">
+          <div class="settings-panel-head">
+            <h3>Your profile</h3>
+            <p>Update your display name and password.</p>
+          </div>
+
+          <div class="profile-card-head">
+            <span class="profile-card-avatar" id="profile-card-avatar">–</span>
+            <span class="profile-card-info">
+              <strong id="profile-card-name">–</strong>
+              <span id="profile-card-email">–</span>
+            </span>
+          </div>
+
+          <div class="settings-grid">
+            <div class="settings-field">
+              <label for="profile-display-name">Display name</label>
+              <input type="text" id="profile-display-name" placeholder="Your name" />
+            </div>
+            <div class="settings-field">
+              <label for="profile-role">Role (read-only)</label>
+              <input type="text" id="profile-role" readonly />
+            </div>
+          </div>
+
+          <div class="profile-pass-section">
+            <h4><i data-lucide="key-round"></i> Change password</h4>
+            <div class="settings-grid">
+              <div class="settings-field col-span-2">
+                <label for="profile-current-pass">Current password</label>
+                <input type="password" id="profile-current-pass" autocomplete="current-password" placeholder="Enter current password" />
+              </div>
+              <div class="settings-field">
+                <label for="profile-new-pass">New password</label>
+                <input type="password" id="profile-new-pass" autocomplete="new-password" placeholder="Min 6 characters" />
+              </div>
+              <div class="settings-field">
+                <label for="profile-confirm-pass">Confirm new password</label>
+                <input type="password" id="profile-confirm-pass" autocomplete="new-password" placeholder="Repeat new password" />
+              </div>
+            </div>
+            <p class="access-message" id="profile-message" role="status"></p>
+          </div>
+
+          <div class="settings-actions">
+            <button class="button button-primary" type="button" id="profile-save">
+              <i data-lucide="check"></i> Save changes
+            </button>
+            <button class="button button-secondary" type="button" id="profile-signout">
+              <i data-lucide="log-out"></i> Sign out
+            </button>
+          </div>
+        </section>
+
+        <section class="settings-panel" data-panel="trash">
+          <div class="settings-panel-head">
+            <h3>Deleted vehicles</h3>
+            <p>Restore a vehicle if it was deleted by mistake.</p>
+          </div>
+          <div class="access-table-wrap">
+            <table class="access-table">
+              <thead>
+                <tr><th>Vehicle</th><th>VIN</th><th>Deleted</th><th></th></tr>
+              </thead>
+              <tbody id="trash-rows"></tbody>
+            </table>
+            <div class="access-empty" id="trash-empty">No deleted vehicles.</div>
+          </div>
+        </section>
+
+        <section class="settings-panel" data-panel="audit">
+          <div class="settings-panel-head">
+            <h3>Audit log</h3>
+            <p>Who did what and when. Only admins can view this.</p>
+          </div>
+
+          <div class="admin-lock-banner" id="audit-lock-banner" hidden>
+            <i data-lucide="lock"></i>
+            <span>Only admins can view the audit log.</span>
+          </div>
+
+          <div class="audit-toolbar">
+            <label class="audit-search">
+              <i data-lucide="search"></i>
+              <input type="search" id="audit-search" placeholder="Search actions, users, targets…" autocomplete="off" />
+            </label>
+            <select id="audit-filter-action" class="audit-filter">
+              <option value="">All actions</option>
+              <option value="add">Add vehicle</option>
+              <option value="update">Update vehicle</option>
+              <option value="delete">Delete vehicle</option>
+              <option value="restore">Restore vehicle</option>
+              <option value="complete">Complete service</option>
+              <option value="addUser">Add user</option>
+              <option value="removeUser">Remove user</option>
+              <option value="resetPassword">Reset password</option>
+            </select>
+            <select id="audit-filter-actor" class="audit-filter">
+              <option value="">All users</option>
+            </select>
+          </div>
+
+          <div class="access-table-wrap audit-table-wrap">
+            <table class="access-table audit-table">
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Actor</th>
+                  <th>Action</th>
+                  <th>Target</th>
+                  <th>Details</th>
+                </tr>
+              </thead>
+              <tbody id="audit-rows"></tbody>
+            </table>
+            <div class="access-empty" id="audit-empty">No audit entries yet.</div>
+          </div>
+
+          <div class="audit-footer">
+            <span id="audit-count">0 entries</span>
+          </div>
+        </section>
+
+        <section class="settings-panel" data-panel="about">
+          <div class="settings-panel-head">
+            <h3>About</h3>
+            <p>Fleetline · Fleet Operations Portal</p>
+          </div>
+          <div class="about-grid">
+            <div class="about-row"><span>Version</span><strong>1.0.0</strong></div>
+            <div class="about-row"><span>Brand</span><strong>E88 Ventures, Inc. × NRD</strong></div>
+            <div class="about-row"><span>Purpose</span><strong>Fleet operations &amp; service tracking</strong></div>
+            <div class="about-row"><span>Support</span><strong>jguardian@nrdev.ph</strong></div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </dialog>
+
+  <!-- ============ ACTIVITY DRAWER ============ -->
+  <dialog id="activity-dialog" class="activity-drawer"
+          aria-labelledby="activity-dialog-title">
+    <header class="activity-drawer-header">
+      <h2 id="activity-dialog-title">Recent Activity</h2>
+      <button class="icon-button activity-close" type="button" aria-label="Close"><i data-lucide="x"></i></button>
+    </header>
+    <div class="activity-drawer-content">
+      <ul class="activity-feed" id="activity-drawer-list"></ul>
+      <div class="activity-drawer-empty" id="activity-drawer-empty" hidden>No changes recorded yet.</div>
+    </div>
+  </dialog>
+
+  <div class="toast-region" id="toast-region" role="status" aria-live="polite"></div>
+
+  <!-- ============ CONFIRM DIALOG ============ -->
+  <dialog id="confirm-dialog" class="dialog dialog-confirm"
+          aria-labelledby="confirm-title" aria-describedby="confirm-desc">
+    <div class="confirm-dialog-body">
+      <div class="confirm-dialog-head">
+        <span class="confirm-dialog-icon" id="confirm-icon">
+          <i data-lucide="circle-help"></i>
+        </span>
+        <h2 id="confirm-title">Confirm</h2>
+      </div>
+      <p class="confirm-dialog-desc" id="confirm-desc"></p>
+      <div class="confirm-dialog-detail" id="confirm-detail" hidden></div>
+      <div class="confirm-dialog-actions">
+        <button class="button button-secondary" type="button" id="confirm-cancel">Cancel</button>
+        <button class="button button-primary" type="button" id="confirm-ok">Confirm</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- ============ BULK STATUS DIALOG ============ -->
+  <dialog id="bulk-status-dialog" class="dialog dialog-bulk-status">
+    <div class="bulk-status-body">
+      <div class="bulk-status-head">
+        <span class="bulk-status-icon">
+          <i data-lucide="activity"></i>
+        </span>
+        <div>
+          <h2 id="bulk-status-title">Set fleet status</h2>
+          <p id="bulk-status-subtitle" class="bulk-status-subtitle">Choose a new status for the selected vehicles.</p>
+        </div>
+      </div>
+
+      <div class="bulk-status-options" id="bulk-status-options" role="radiogroup" aria-label="Fleet status">
+        <label class="bulk-status-option" data-status="Active In-Service">
+          <input type="radio" name="bulk-status" value="Active In-Service" />
+          <span class="bulk-status-dot" data-variant="active"></span>
+          <span class="bulk-status-label">Active In-Service</span>
+          <span class="bulk-status-desc">Normal operation — in service.</span>
+        </label>
+        <label class="bulk-status-option" data-status="In Service - Due PM">
+          <input type="radio" name="bulk-status" value="In Service - Due PM" />
+          <span class="bulk-status-dot" data-variant="due"></span>
+          <span class="bulk-status-label">In Service - Due PM</span>
+          <span class="bulk-status-desc">Still in service but PM is due soon.</span>
+        </label>
+        <label class="bulk-status-option" data-status="Maintenance Hold">
+          <input type="radio" name="bulk-status" value="Maintenance Hold" />
+          <span class="bulk-status-dot" data-variant="hold"></span>
+          <span class="bulk-status-label">Maintenance Hold</span>
+          <span class="bulk-status-desc">Pulled from service — being repaired.</span>
+        </label>
+        <label class="bulk-status-option" data-status="Retired">
+          <input type="radio" name="bulk-status" value="Retired" />
+          <span class="bulk-status-dot" data-variant="retired"></span>
+          <span class="bulk-status-label">Retired</span>
+          <span class="bulk-status-desc">Permanently removed from active fleet.</span>
+        </label>
+      </div>
+
+      <div class="bulk-status-actions">
+        <button class="button button-secondary" type="button" id="bulk-status-cancel">Cancel</button>
+        <button class="button button-primary" type="button" id="bulk-status-apply" disabled>
+          <i data-lucide="check"></i> Apply to <span id="bulk-status-count">0</span>
+        </button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- ============ BULK CUSTOMER DIALOG ============ -->
+  <dialog id="bulk-customer-dialog" class="dialog dialog-bulk-customer">
+    <div class="bulk-customer-body">
+      <div class="bulk-customer-head">
+        <span class="bulk-customer-icon">
+          <i data-lucide="users"></i>
+        </span>
+        <div>
+          <h2>Set fleet customer</h2>
+          <p class="bulk-customer-subtitle">
+            Apply the same customer to <strong id="bulk-customer-count">0</strong> selected vehicle<span id="bulk-customer-count-plural">s</span>.
+          </p>
+        </div>
+      </div>
+
+      <div class="bulk-customer-field">
+        <label for="bulk-customer-input">Customer name</label>
+        <input
+          id="bulk-customer-input"
+          type="text"
+          placeholder="Enter or pick a customer"
+          autocomplete="off"
+          spellcheck="false"
+        />
+      </div>
+
+      <div class="bulk-customer-suggestions" id="bulk-customer-suggestions" hidden>
+        <span class="bulk-customer-suggestions-label">Existing customers</span>
+        <div class="bulk-customer-chips" id="bulk-customer-chips"></div>
+      </div>
+
+      <div class="bulk-customer-actions">
+        <button class="button button-secondary" type="button" id="bulk-customer-cancel">Cancel</button>
+        <button class="button button-primary" type="button" id="bulk-customer-apply" disabled>
+          <i data-lucide="check"></i> Apply to <span id="bulk-customer-apply-count">0</span>
+        </button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- ============ JOB ORDER FORM DIALOG ============ -->
+  <dialog id="job-order-dialog" class="dialog dialog-job-order">
+    <div class="dialog-heading" style="padding: 16px 24px; border-bottom: 1px solid var(--border); margin: 0; background: var(--panel-2); display: flex; align-items: center; justify-content: space-between;">
+      <div>
+        <span class="section-kicker">EDIT JOB ORDER</span>
+        <h2 style="margin: 0;">Generate PDF</h2>
+      </div>
+      <div style="display: flex; gap: 8px; align-items: center;">
+        <button class="button button-primary" type="button" id="jo-save-btn">
+          <i data-lucide="save"></i> Save
+        </button>
+        <button class="button button-secondary" type="button" id="jo-print-btn">
+          <i data-lucide="printer"></i> Print / Save PDF
+        </button>
+        <button class="icon-button" type="button" id="jo-close-btn" aria-label="Close" style="margin-left: 8px;">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="jo-paper">
+      <div class="jo-header">
+        <div class="jo-logos">
+          <img src="e88-logo.png" alt="E88" class="jo-logo-e88" />
+          <img src="nrd-logo.png" alt="NRD" class="jo-logo-nrd" />
+        </div>
+        <div class="jo-title">
+          <h1>JOB ORDER</h1>
+        </div>
+      </div>
+
+      <div class="jo-subheader">
+        <div class="jo-address">
+          <strong>E88 Ventures, Inc.</strong><br>
+          15 Brixton St. Kapitolyo, Pasig City<br>
+          1603 Philippines<br>
+          info@nrdev.ph
+        </div>
+
+        <table class="jo-meta-table">
+          <thead>
+            <tr>
+              <th style="width: 65%;">JOB ORDER #</th>
+              <th style="width: 35%;">DATE</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span id="jo-pms"></span></td>
+              <td><span id="jo-date"></span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="jo-info-grid">
+        <div class="jo-col">
+          <div class="jo-section-title">CLIENT INFORMATION</div>
+          <div class="jo-row"><label>Name:</label><input type="text" id="jo-name" /></div>
+          <div class="jo-row"><label>Company:</label><input type="text" id="jo-company" /></div>
+          <div class="jo-row"><label>Email:</label><input type="text"  /></div>
+          <div class="jo-row"><label>Phone:</label><input type="text"  /></div>
+        </div>
+        <div class="jo-col">
+          <div class="jo-section-title">VEHICLE INFORMATION</div>
+          <div class="jo-row"><label>Model &amp; Year:</label><input type="text" id="jo-model" /></div>
+          <div class="jo-row"><label>VIN:</label><input type="text" id="jo-vin" /></div>
+          <div class="jo-row"><label>Plate Number:</label><input type="text" id="jo-plate" /></div>
+          <div class="jo-row"><label>ODO Mileage:</label><input type="text" id="jo-odo" /></div>
+        </div>
+      </div>
+
+      <div class="jo-section-title">WORK ORDER INFORMATION</div>
+      <div class="jo-work-info">
+        <div class="jo-work-col">
+          <div class="jo-work-label">Work Required:</div>
+          <label><input type="checkbox" /> Mechanical</label>
+          <label><input type="checkbox" /> Electrical</label>
+          <label><input type="checkbox" /> Other (PMS, Plastic Parts, etc.)</label>
+        </div>
+        <div class="jo-work-col">
+          <div class="jo-work-label">Work Order Type:</div>
+          <label><input type="checkbox" /> Preventive Maintenance</label>
+          <label><input type="checkbox" /> Client initiated repair</label>
+          <label><input type="checkbox" /> Company initiated repair</label>
+          <label><input type="checkbox" /> Enhancements</label>
+        </div>
+      </div>
+
+      <div class="jo-desc">
+        <label>Brief Description of Work:</label>
+        <textarea id="jo-description" rows="3"></textarea>
+      </div>
+
+      <div class="jo-table-wrapper">
+        <table class="jo-table">
+          <colgroup>
+            <col style="width: 15%;">
+            <col style="width: 45%;">
+            <col style="width: 15%;">
+            <col style="width: 12.5%;">
+            <col style="width: 12.5%;">
+          </colgroup>
+          <thead>
+            <tr>
+              <th colspan="5" style="text-align:center; background:#e5e5e5;">PARTS &amp; SERVICES RENDERED</th>
+            </tr>
+            <tr>
+              <th>ITEM CODE</th>
+              <th>DESCRIPTION</th>
+              <th>STATUS</th>
+              <th>QUANTITY</th>
+              <th>UOM</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><input type="text" list="parts-list" class="part-code-input" /></td>
+              <td><input type="text" class="part-desc-input" /></td>
+              <td><input type="text"></td>
+              <td><input type="text"></td>
+              <td><input type="text"></td>
+            </tr>
+            <tr>
+              <td><input type="text" list="parts-list" class="part-code-input" /></td>
+              <td><input type="text" class="part-desc-input" /></td>
+              <td><input type="text"></td>
+              <td><input type="text"></td>
+              <td><input type="text"></td>
+            </tr>
+            <tr>
+              <td><input type="text" list="parts-list" class="part-code-input" /></td>
+              <td><input type="text" class="part-desc-input" readonly /></td>
+              <td><input type="text"></td>
+              <td><input type="text"></td>
+              <td><input type="text"></td>
+            </tr>
+            <tr>
+              <td><input type="text" list="parts-list" class="part-code-input" /></td>
+              <td><input type="text" class="part-desc-input" readonly /></td>
+              <td><input type="text"></td>
+              <td><input type="text"></td>
+              <td><input type="text"></td>
+            </tr>
+            <tr>
+              <td><input type="text" list="parts-list" class="part-code-input" /></td>
+              <td><input type="text" class="part-desc-input" readonly /></td>
+              <td><input type="text"></td>
+              <td><input type="text"></td>
+              <td><input type="text"></td>
+            </tr>
+            <tr>
+              <td><input type="text" list="parts-list" class="part-code-input" /></td>
+              <td><input type="text" class="part-desc-input" readonly /></td>
+              <td><input type="text"></td>
+              <td><input type="text"></td>
+              <td><input type="text"></td>
+            </tr>
+            <tr>
+              <td><input type="text" list="parts-list" class="part-code-input" /></td>
+              <td><input type="text" class="part-desc-input" readonly /></td>
+              <td><input type="text"></td>
+              <td><input type="text"></td>
+              <td><input type="text"></td>
+            </tr>
+            <tr>
+              <td><input type="text" list="parts-list" class="part-code-input" /></td>
+              <td><input type="text" class="part-desc-input" readonly /></td>
+              <td><input type="text"></td>
+              <td><input type="text"></td>
+              <td><input type="text"></td>
+            </tr>
+            <tr>
+              <td><input type="text" list="parts-list" class="part-code-input" /></td>
+              <td><input type="text" class="part-desc-input" readonly /></td>
+              <td><input type="text"></td>
+              <td><input type="text"></td>
+              <td><input type="text"></td>
+            </tr>
+            <tr>
+              <td><input type="text" list="parts-list" class="part-code-input" /></td>
+              <td><input type="text" class="part-desc-input" readonly /></td>
+              <td><input type="text"></td>
+              <td><input type="text"></td>
+              <td><input type="text"></td>
+            </tr>
+          </tbody>
+        </table>
+        <datalist id="parts-list"></datalist>
+      </div>
+
+      <div class="jo-time-grid">
+        <div class="jo-time-col">
+          <div class="jo-time-row"><label>Start date</label><input type="date" /></div>
+          <div class="jo-time-row"><label>End date</label><input type="date" /></div>
+        </div>
+        <div class="jo-time-col">
+          <div class="jo-time-row"><label>Time Start:</label><input type="time" /></div>
+          <div class="jo-time-row"><label>Time End:</label><input type="time" /></div>
+        </div>
+      </div>
+
+      <div class="jo-remarks">
+        <label>Other Remarks</label>
+        <textarea rows="2"></textarea>
+      </div>
+
+      <div class="jo-signatures">
+        <div class="jo-sig-col">
+          <div class="jo-sig-content">
+            <div class="jo-sig-header">To be filled by NRD Employees</div>
+            <div class="jo-sig-top-row">
+              <div class="jo-sig-half">
+                <div class="jo-sig-label">Prepared by:</div>
+              </div>
+              <div class="jo-sig-half">
+                <div class="jo-sig-label">Checked by:</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="jo-sig-bottom-row">
+            <div class="jo-sig-half">
+              <div class="jo-sig-line" style="margin-top: 25px;"></div>
+              <div class="jo-sig-caption">Signature over printed name</div>
+            </div>
+            <div class="jo-sig-half">
+              <div class="jo-sig-line" style="margin-top: 25px;"></div>
+              <div class="jo-sig-caption">Signature over printed name</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="jo-sig-col">
+          <div class="jo-sig-content">
+            <div class="jo-sig-header">To be filled by Client</div>
+            <div class="jo-sig-desc">
+              I, the Client, authorize the aforementioned work order and promise to pay in accordance with the payment terms.
+            </div>
+          </div>
+
+          <div class="jo-sig-bottom-row">
+            <div class="jo-sig-half" style="width: 100%;">
+              <div class="jo-sig-line" style="margin-top: 25px;"></div>
+              <div class="jo-sig-caption">Client signature over printed name / Date</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="jo-feedback">
+        <div class="jo-feedback-header">SERVICE FEEDBACK</div>
+        <div class="jo-feedback-row">
+          <div class="jo-feedback-label">On a scale of 1-10, how likely are you to recommend our service?</div>
+          <div class="jo-feedback-input"><input type="text" /></div>
+        </div>
+        <div class="jo-feedback-header" style="border-top: 1px solid #000; text-align: left;">CLIENT REMARKS</div>
+        <div class="jo-feedback-input" style="height: 30px;"><input type="text" /></div>
+      </div>
+
+      <div class="jo-footer">
+        Thank you for your business!<br>
+        E88 VENTURES, INC. | 15 Brixton St., Kapitolyo, Pasig City 1603 Philippines
+      </div>
+    </div>
+  </dialog>
+
+</body>
+</html>
