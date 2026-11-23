@@ -82,7 +82,11 @@
         <input type="checkbox" data-row-select="${escapeHtml(v.id)}" ${isSelected ? 'checked' : ''} aria-label="Select vehicle" />
       </td>
       <td data-label="Vehicle"><div class="vehicle-cell">
-        <img src="${getVehicleImage(v.model, v.color)}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" class="vehicle-avatar-img" />
+        ${getVehicleImage(v.model, v.color)
+  ? `<img src="${getVehicleImage(v.model, v.color)}"
+       onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+       class="vehicle-avatar-img" />`
+  : ''}
         <i class="fa-solid fa-motorcycle" style="display:none; font-size: 20px; color: var(--primary); margin-right: 8px;"></i>
         <span class="vehicle-primary"><strong>${escapeHtml(v.model)}</strong><span>${escapeHtml(v.color)}</span></span>
       </div></td>

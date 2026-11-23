@@ -175,17 +175,17 @@
     })[c]);
   }
 
-  /* ---------- Vehicle image ---------- */
 function getVehicleImage(model, color, isProfile = false) {
-  if (!model || !color) return null;
+  if (!model || !color) return '';
+
   const modelAliases = {
-    'R280 Sport': 'R280',
-    // Add future models here, e.g.:
-    // 'R500 Pro': 'R500'
+    'R280 Sport': 'R280'
   };
+
   const imageModel = modelAliases[model] || model;
   const m = String(imageModel).toLowerCase().trim().replace(/\s+/g, '-');
   const c = String(color).toLowerCase().trim().replace(/\s+/g, '-');
+
   return `images/${m}-${c}${isProfile ? '-profile' : ''}.png`;
 }
 
