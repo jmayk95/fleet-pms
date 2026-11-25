@@ -1060,6 +1060,19 @@ function applyRoleGating() {
   if (accessForm) accessForm.querySelectorAll('input, select, button').forEach(el => { el.disabled = !admin; });
   if (accessRows) accessRows.querySelectorAll('button').forEach(el => { el.disabled = !admin; });
 }
+async function bootAfterLogin() {
+  try {
+    await refreshAccessAccountsFromSheets();
+    vehicles = await loadVehiclesFromSheets();
+    await loadHistory();
+    await loadServiceLog();
+    loadPartsList();
+    render();
+    fetchAndCacheHolidays(currentCalDate.getFullYear());
+  } catch (err) {
+    console.error('[Fleetline] bootAfterLogin failed:', err);
+  }
+}
 function showApp() {
   document.querySelector('#login-gate').classList.add('hidden');
   document.querySelector('#app-shell').classList.add('visible');
