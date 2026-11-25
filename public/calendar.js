@@ -97,8 +97,8 @@ async function fetchAndCacheHolidays(year) {
       holidayFetchState.set(year, 'done');
       console.log(`[Fleetline] Loaded ${map.size} PH holidays for ${year} (source: ${res.source || 'api'})`);
       // Re-render if we're still looking at that year
-      if (currentCalDate.getFullYear() === year) {
-        renderCalendar(vehicles, serviceLog);
+      if (currentCalDate && currentCalDate.getFullYear() === year) {
+        renderCalendar(window.vehicles || vehicles, window.serviceLog || serviceLog);
       }
     } else {
       holidayFetchState.set(year, 'error');
