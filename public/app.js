@@ -299,19 +299,26 @@ async function fetchWithRetry(url, options = {}, { retries = 1, timeoutMs = FETC
 }
 
 /* ============ SHEETS API ============ */
-async function sheetsGet(action) {
-  const token = localStorage.getItem(SESSION_TOKEN_KEY) || '';
-  // Support "holidays&year=2026" style actions by splitting off the query string.
-  // The base action is URL-encoded; the extra params are appended raw so the
-  // backend sees them as separate query parameters.
-  let baseAction = action;
-  let extraParams = '';
-  const ampIdx = String(action).indexOf('&');
-  if (ampIdx !== -1) {
-    baseAction = String(action).slice(0, ampIdx);
-    extraParams = '&' + String(action).slice(ampIdx + 1);
+async function sheetsGet(action, params = {}) {
+  // --- GUARD: catch null/undefined action before it becomes "/null" ---
+  if (action === null || action === undefined || action === '' || action === 'null' || action === 'undefined') {
+    console.error('[sheetsGet] called with invalid action:', action, '\nStack:', new Error().stack);
+    throw new Error(`sheetsGet: invalid action "${action}"`);
   }
-  const url = `${SHEETS_URL}?action=${encodeURIComponent(baseAction)}${extraParams}&sessionToken=${encodeURIComponent(token)}`;
+
+  const token = localStorage.getItem(SESSION_TOKEN_KEY) || '';
+  // Build query params cleanly. If a caller passed a legacy string like
+  // "holidays&year=2026", split it off so older call sites keep working.
+  let baseAction = String(action);
+  let extraParams = '';
+  const ampIdx = baseAction.indexOf('&');
+  if (ampIdx !== -1) {
+    extraParams = '&' + baseAction.slice(ampIdx + 1);
+    baseAction = baseAction.slice(0, ampIdx);
+  }
+  const qs = new URLSearchParams({ action: baseAction, sessionToken: token });
+  Object.entries(params).forEach(([k, v]) => { if (v !== undefined && v !== null) qs.set(k, String(v)); });
+  const url = `${SHEETS_URL}?${qs.toString()}${extraParams}`;
   showProgress();
   try {
     const res = await fetchWithRetry(url, { method: 'GET' });
@@ -328,6 +335,12 @@ async function sheetsGet(action) {
   } finally { hideProgress(); }
 }
 async function sheetsPost(action, payload) {
+  // --- GUARD: catch null/undefined action ---
+  if (action === null || action === undefined || action === '' || action === 'null' || action === 'undefined') {
+    console.error('[sheetsPost] called with invalid action:', action, '\nStack:', new Error().stack);
+    throw new Error(`sheetsPost: invalid action "${action}"`);
+  }
+
   const token = localStorage.getItem(SESSION_TOKEN_KEY) || '';
   showProgress();
   try {
@@ -349,6 +362,10 @@ async function sheetsPost(action, payload) {
   } finally { hideProgress(); }
 }
 async function sheetsMutate(action, payload) {
+  if (action === null || action === undefined || action === '' || action === 'null' || action === 'undefined') {
+    console.error('[sheetsMutate] called with invalid action:', action, '\nStack:', new Error().stack);
+    throw new Error(`sheetsMutate: invalid action "${action}"`);
+  }
   writeInFlight = true;
   try { return await sheetsPost(action, payload); }
   finally {
