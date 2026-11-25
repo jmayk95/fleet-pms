@@ -80,13 +80,17 @@ function getHolidaysForYear(year) {
    LIVE FETCH — runs in background, re-renders on success
    ============================================================ */
 async function fetchAndCacheHolidays(year) {
+  if (!Number.isFinite(year)) {
+    console.warn('[Fleetline] fetchAndCacheHolidays called with invalid year:', year);
+    return;
+  }
   if (holidayFetchState.get(year) === 'loading') return;
   if (holidayFetchState.get(year) === 'done') return;
   holidayFetchState.set(year, 'loading');
 
   try {
     // sheetsGet is defined globally in app.js
-    const res = await sheetsGet(`holidays&year=${year}`);
+    const res = await sheetsGet('holidays', { year });
     if (res && res.ok && res.holidays && typeof res.holidays === 'object') {
       const map = new Map(Object.entries(res.holidays));
       liveHolidaysCache.set(year, map);
@@ -175,6 +179,14 @@ function renderCalendar(vehicleList, logList) {
   const grid = document.getElementById('cal-grid');
   const title = document.getElementById('cal-month-title');
   if (!grid || !title) return;
+
+  // Defensive: if currentCalDate was corrupted, fall back to today.
+  if (!(currentCalDate instanceof Date) || !Number.isFinite(currentCalDate.getTime())) {
+    console.warn('[Fleetline] currentCalDate invalid, resetting to now');
+    currentCalDate = new Date();
+  }
+  if (!Array.isArray(vehicleList)) vehicleList = window.vehicles || [];
+  if (!Array.isArray(logList)) logList = window.serviceLog || [];
 
   const year = currentCalDate.getFullYear();
   const month = currentCalDate.getMonth();
