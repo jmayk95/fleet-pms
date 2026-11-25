@@ -81,7 +81,7 @@ function getHolidaysForYear(year) {
    ============================================================ */
 async function fetchAndCacheHolidays(year) {
   if (!Number.isFinite(year)) {
-    console.warn('[Fleetline] fetchAndCacheHolidays called with invalid year:', year);
+    console.warn('[Fleetline] fetchAndCacheHolidays invalid year:', year);
     return;
   }
   if (holidayFetchState.get(year) === 'loading') return;
@@ -180,9 +180,8 @@ function renderCalendar(vehicleList, logList) {
   const title = document.getElementById('cal-month-title');
   if (!grid || !title) return;
 
-  // Defensive: if currentCalDate was corrupted, fall back to today.
   if (!(currentCalDate instanceof Date) || !Number.isFinite(currentCalDate.getTime())) {
-    console.warn('[Fleetline] currentCalDate invalid, resetting to now');
+    console.warn('[Fleetline] currentCalDate invalid, resetting');
     currentCalDate = new Date();
   }
   if (!Array.isArray(vehicleList)) vehicleList = window.vehicles || [];
