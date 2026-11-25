@@ -300,15 +300,11 @@ async function fetchWithRetry(url, options = {}, { retries = 1, timeoutMs = FETC
 
 /* ============ SHEETS API ============ */
 async function sheetsGet(action, params = {}) {
-  // --- GUARD: catch null/undefined action before it becomes "/null" ---
   if (action === null || action === undefined || action === '' || action === 'null' || action === 'undefined') {
-    console.error('[sheetsGet] called with invalid action:', action, '\nStack:', new Error().stack);
+    console.error('[sheetsGet] invalid action:', action, '\nStack:', new Error().stack);
     throw new Error(`sheetsGet: invalid action "${action}"`);
   }
-
   const token = localStorage.getItem(SESSION_TOKEN_KEY) || '';
-  // Build query params cleanly. If a caller passed a legacy string like
-  // "holidays&year=2026", split it off so older call sites keep working.
   let baseAction = String(action);
   let extraParams = '';
   const ampIdx = baseAction.indexOf('&');
@@ -335,15 +331,12 @@ async function sheetsGet(action, params = {}) {
   } finally { hideProgress(); }
 }
 async function sheetsPost(action, payload) {
-  // --- GUARD: catch null/undefined action ---
   if (action === null || action === undefined || action === '' || action === 'null' || action === 'undefined') {
-    console.error('[sheetsPost] called with invalid action:', action, '\nStack:', new Error().stack);
+    console.error('[sheetsPost] invalid action:', action, '\nStack:', new Error().stack);
     throw new Error(`sheetsPost: invalid action "${action}"`);
   }
-
   const token = localStorage.getItem(SESSION_TOKEN_KEY) || '';
   showProgress();
-  try {
     const res = await fetchWithRetry(SHEETS_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -362,9 +355,10 @@ async function sheetsPost(action, payload) {
   } finally { hideProgress(); }
 }
 let refreshDebounceTimer = null;
+let refreshDebounceTimer = null;
 async function sheetsMutate(action, payload) {
   if (action === null || action === undefined || action === '' || action === 'null' || action === 'undefined') {
-    console.error('[sheetsMutate] called with invalid action:', action, '\nStack:', new Error().stack);
+    console.error('[sheetsMutate] invalid action:', action, '\nStack:', new Error().stack);
     throw new Error(`sheetsMutate: invalid action "${action}"`);
   }
   writeInFlight = true;
@@ -1127,12 +1121,10 @@ function initLogin() {
       const res = await sheetsPost('login', { email, password });
       if (res.sessionToken) localStorage.setItem(SESSION_TOKEN_KEY, res.sessionToken);
       saveUser(res.user);
-      refreshAccessAccountsFromSheets();
-      loadHistory();
-      loadServiceLog();
       recordActivity(`${res.user.email} signed in`, 'Authentication');
       showApp();
       showToast(`Welcome, ${res.user.name.split(' ')[0]}`);
+      await bootAfterLogin();
     } catch (err) {
       loginErrorText.textContent = err.message || 'Sign-in failed.';
       loginError.classList.add('visible');
