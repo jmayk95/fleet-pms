@@ -361,6 +361,7 @@ async function sheetsPost(action, payload) {
     throw err;
   } finally { hideProgress(); }
 }
+let refreshDebounceTimer = null;
 async function sheetsMutate(action, payload) {
   if (action === null || action === undefined || action === '' || action === 'null' || action === 'undefined') {
     console.error('[sheetsMutate] called with invalid action:', action, '\nStack:', new Error().stack);
@@ -370,7 +371,8 @@ async function sheetsMutate(action, payload) {
   try { return await sheetsPost(action, payload); }
   finally {
     writeInFlight = false;
-    setTimeout(() => { if (!writeInFlight) refreshVehiclesInBackground(); }, 300);
+    clearTimeout(refreshDebounceTimer);
+    refreshDebounceTimer = setTimeout(() => { if (!writeInFlight) refreshVehiclesInBackground(); }, 300);
   }
 }
 
